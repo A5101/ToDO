@@ -1,0 +1,178 @@
+﻿@page "/todo"
+@inject HttpClient client
+
+@if (!toDoList.Any())
+{
+    <h3>ToDoList is empty! Add new ToDo</h3>
+}
+else
+{
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">ToDoList</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="table  card-table table-vcenter" style="margin-bottom:0rem !important">
+                <thead>
+                    <tr>
+                        <th class="w-1 pe-0">Status</th>
+                        <th class="w-1">Title</th>
+                        <th class="w-100">Description</th>
+                        <th class="w-100">Date Added</th>
+                        <th class="w-100">Date Completed</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var toDo in toDoList)
+                    {
+                        <tr style=@( toDo.IsComplete ? "background-color:antiquewhite" : "")>
+                            <td class="w-1 pe-0">
+                                <div class="me-2" style="margin-left: auto;">
+                                    @if (toDo.IsComplete)
+                                    {
+                                        <input class="form-check-input m-0 align-middle" checked type="checkbox" @onchange="() => ToggleIsComplete(toDo)" />
+                                    }
+                                    else
+                                    {
+                                        <input class="form-check-input m-0 align-middle" type="checkbox" @onchange="() => ToggleIsComplete(toDo)" />
+                                    }
+                                </div>
+                            </td>
+                            <td class="w-1">
+                                <h4 class="ms-2">@toDo.Title</h4>
+                            </td>
+                            <td class="w-100">
+                                <h4 class="ms-2">@toDo.Description</h4>
+                            </td>
+                            <td class="w-100">
+                                <h4 class="ms-1">@($"{toDo.DateAdded:f}")</h4>
+                            </td>
+
+                            <td class="w-100">
+                                <h4 class="ms-1">@(toDo.DateCompleted == null ? "---------" : $"{toDo.DateCompleted:f}")</h4>
+                            </td>
+
+                            <td>
+
+                                <button class="btn btn-primary" @onclick="() => DeleteToDo(toDo.Id)">Delete</button>
+
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+
+<button type="button" class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#toDoModal">
+    Add new ToDo
+</button>
+
+<div class="modal" id="toDoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">New ToDo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-1">
+                    <label class="form-label">Title</label>
+                    <input required type="text" class="form-control" placeholder="Your ToDo title" @bind=toDoTitle @oninput="OnTitleInput" />
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="col-lg-12">
+                    <div>
+                        <label class="form-label">ToDo description</label>
+                        <textarea class="form-control" rows="2" @bind=toDoDescription></textarea>
+                    </div>
+                </div>
+            </div>
+
+            @if (showButton)
+            {
+                <div class="modal-footer">
+                    <button class="btn btn-primary ms-auto" data-bs-dismiss="modal" @onclick="AddToDo">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M12 5l0 14"></path>
+                            <path d="M5 12l14 0"></path>
+                        </svg>
+                        Create new ToDo
+                    </button>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private List<ToDoElement> toDoList = new List<ToDoElement>();
+    private string? toDoTitle = string.Empty;
+    private string? toDoDescription = string.Empty;
+    private bool showButton = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Refresh();
+    }
+
+
+    private async void AddToDo()
+    {
+        if (!string.IsNullOrWhiteSpace(toDoTitle))
+        {
+            await client.PostAsJsonAsync<ToDoElement>("api/ToDo/", new ToDoElement() { Title = toDoTitle, Description = toDoDescription, Id = Guid.NewGuid() });
+            toDoTitle = string.Empty;
+            toDoDescription = string.Empty;
+            //Thread.Sleep(200);
+            await Refresh();
+        }
+
+    }
+
+    private async void DeleteToDo(Guid id)
+    {
+        await client.DeleteAsync("api/ToDo/?id=" + id);
+        await Refresh();
+    }
+
+    private void OnTitleInput(ChangeEventArgs e)
+    {
+        toDoTitle = e.Value.ToString();
+        showButton = !string.IsNullOrWhiteSpace(toDoTitle);
+    }
+
+    private async Task Refresh()
+    {
+        toDoList = await client.GetFromJsonAsync<List<ToDoElement>>("api/ToDo");
+        StateHasChanged();
+    }
+
+    private async Task ToggleIsComplete(ToDoElement toDo)
+    {
+        toDo.IsComplete = !toDo.IsComplete;
+        if (toDo.IsComplete)
+        {
+            toDo.DateCompleted = DateTime.Now;
+        }
+        else
+        {
+            toDo.DateCompleted = null;
+        }
+
+        await UpdateToDoElement(toDo);
+    }
+
+    private async Task UpdateToDoElement(ToDoElement toDo)
+    {
+        await client.PutAsJsonAsync($"api/ToDo", toDo);
+        await Refresh();
+    }
+}
