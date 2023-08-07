@@ -1,147 +1,27 @@
-# BlazorApp2 or "How to do your ToDo"
-Начнем с того, что же такое Blazor?
+# Начало пути веб-разработки с Blazor WebAssembly
 
-Blazor — это технология, позволяющая создавать клиентские веб-приложения с использованием C# и .NET, а не JavaScript.
+В наше время веб-приложения являются неотъемлемой частью нашей повседневной жизни. Они помогают нам планировать задачи, организовывать свой рабочий день и повышать эффективность работы. В этой статье я хочу рассказать вам о моем опыте изучения и создания веб-приложения для планирования задач ToDo с использованием технологии Blazor WebAssembly.
 
-Была поставлена задача: используя Blazor, реализовать простенький CRUD проект для работы с задачами.
-Для начала необходимо определить с сущностью задачи.
-```c#
-/// <summary>
-/// Класс, представляющий элемент списка дел.
-/// </summary>
-public class ToDoElement
-{
-    /// <summary>
-    /// Уникальный идентификатор элемента списка дел.
-    /// </summary>
-    [Required]
-    public Guid Id { get; set; }
+## Что такое Blazor?
 
-    /// <summary>
-    /// Создает новый экземпляр класса ToDoElement.
-    /// При создании автоматически устанавливает текущую дату в качестве даты добавления.
-    /// </summary>
-    public ToDoElement() => DateAdded = DateTime.Now;
+Blazor - это открытая платформа для создания интерактивных веб-приложений, разработанная компанией Microsoft. Основным преимуществом Blazor является то, что он позволяет разрабатывать веб-приложения с помощью C# и .NET, что делает его доступным для разработчиков, не знакомых с технологиями веб-разработки, такими как JavaScript или TypeScript.
 
-    /// <summary>
-    /// Заголовок элемента списка дел.
-    /// </summary>
-    public string? Title { get; set; }
+## Приступим
 
-    /// <summary>
-    /// Описание элемента списка дел.
-    /// </summary>
-    public string? Description { get; set; }
+Для начала я приступил к созданию простейшего веб-приложения, чтобы понять основы архитектуры Blazor. Весь код приложения разделен на компоненты, что делает его модульным и облегчает поддержку.
 
-    /// <summary>
-    /// Флаг, указывающий, завершен ли элемент списка дел.
-    /// </summary>
-    public bool IsComplete { get; set; }
+## Компоненты в Blazor
 
-    /// <summary>
-    /// Дата добавления элемента в список дел.
-    /// </summary>
-    public DateTime DateAdded { get; set; }
+Компоненты - это основные строительные блоки в Blazor. Они представляют собой повторно используемые части пользовательского интерфейса и могут содержать как разметку HTML, так и код C#. Каждый компонент имеет свою логику и можно передавать параметры между ними.
 
-    /// <summary>
-    /// Дата завершения элемента списка дел (если задача завершена).
-    /// </summary>
-    public DateTime? DateCompleted { get; set; }
-}
-```
-## Создание новых задач
-### Клинтская часть
-Blazor позволяет писать код на стороне клиента с помощью C# вместо JavaScript. Однако практически всю структуру компонента будет составлять html код. Так как предлагается рассмотреть принципы работы с Blazor, предлагаю рассмотреть особенность, с которой начат текущий подраздел, на практике.
+## Двустороннее связывание данных
 
-Для добавления возможности создания новой задачи, сначала определим текстовые поля для соответсвующих атрибутов сущности задачи. Blazor дает возможность связать наши поля ввода с полями в части @code с помощью использования @bind. Таким образом, обращаясь в коде к этим полям, Blazor даст нам содержимое привязанных к ним html элементов.
-```html
-<...>
-<input required type="text" class="form-control" placeholder="Your ToDo title" @bind=toDoTitle @oninput="OnTitleInput" />
-<...>
-<textarea class="form-control" rows="2" @bind=toDoDescription></textarea>
-<...>
-<button class="btn btn-primary ms-auto" data-bs-dismiss="modal" @onclick="AddToDo">
-<...>
-```
-```c#
-@code {
-    private List<ToDoElement> toDoList = new List<ToDoElement>();
-    private string? toDoTitle = string.Empty;
-    private string? toDoDescription = string.Empty;
-    private bool showButton = false;
+Одной из самых мощных особенностей Blazor является двустороннее связывание данных. Это означает, что данные, отображаемые на пользовательском интерфейсе, автоматически обновляются при изменении в коде C#, и наоборот. Это упрощает синхронизацию данных и обеспечивает более плавное пользовательское взаимодействие.
 
-    private async void AddToDo()
-    {
-        if (!string.IsNullOrWhiteSpace(toDoTitle))
-        {
-            await client.PostAsJsonAsync<ToDoElement>("api/ToDo/", new ToDoElement() { Title = toDoTitle, Description = toDoDescription, Id = Guid.NewGuid() });
-            toDoTitle = string.Empty;
-            toDoDescription = string.Empty;
-            //Thread.Sleep(200);
-            await Refresh();
-        }
+## Выводы
 
-    }   
-    private async Task Refresh()
-    {
-        toDoList = await client.GetFromJsonAsync<List<ToDoElement>>("api/ToDo");
-        StateHasChanged();
-    }
-}
-```
+Изучение Blazor оказалось удивительным опытом для меня. Это интуитивно понятный инструмент, который позволяет создавать мощные веб-приложения с использованием знакомого для меня языка программирования C#. Я смог разработать простое веб-приложение для планирования задач ToDo, используя основные концепции Blazor, такие как компоненты или двустороннее связывание данных.
 
-Blazor позволяет вставить некоторый элемент в наш компонент используя @inject. Так например вставим HttpClient, чтобы иметь возможность отправлять запросы.
-```c#
-@inject HttpClient client
-```
+Blazor предоставляет отличную альтернативу для .NET разработчиков, которые хотят создавать веб-приложения, но не хотят изучать новые языки программирования.
 
-Отдельно стоит отметить часть
-```c#
-await client.PostAsJsonAsync<ToDoElement>("api/ToDo/", new ToDoElement() { Title = toDoTitle, Description = toDoDescription, Id = Guid.NewGuid() });
-```
-
-Можно заметить, что новую задачу мы отправлем куда-то на сервер, однако для подробного понимания стоит рассмотреть серверную часть, которая будет принимать данный запрос.
-
-### Серверная часть
-```c#
-[Route("api/[controller]")]
-    [ApiController]
-    public class ToDoController : Controller
-    {
-        private readonly DataManager dataManager;
-
-        public ToDoController(DataManager dataManager)
-        {
-            this.dataManager = dataManager;
-        }
-        
-        [HttpPost]
-        public IActionResult Add(ToDoElement toDoElement)
-        {
-            dataManager.toDoElementRepository.Add(toDoElement);
-            return Ok();
-        }
-```
-По сути, используя [Route("api/[controller]")] мы явно указали, как попасть к данному контроллеру, а также явно указали, какие действия контроллера какие Http запросы будут обрабатывать. Так, действие Add() будет обрабатывать все Post запросы к данному контроллеру.
-
-Вернемся к отправке данных из компонента. Используя HttpClient client, мы отправляем Post запрос, содержащий созданную задачу в JSON-формате, на сервер. Сервер, получив новую задачу, проводит с ней заданные действия, в данном случае вызывает метод Add хранилища задач, что приведет к сохранению нашей задачи в БД.
-```c#
-await client.PostAsJsonAsync<ToDoElement>("api/ToDo/", new ToDoElement() { Title = toDoTitle, Description = toDoDescription, Id = Guid.NewGuid() });
-```
-
-## Получение списка задач
-Похожим образом происходит получение задач. Просим у сервера в виде Get запроса задач, соотвествующее действие контроллера находит запрашиваемые данные и возвращает обратно клиенту для вывода.
-```c#
-toDoList = await client.GetFromJsonAsync<List<ToDoElement>>("api/ToDo");
-```
-```c#
-[HttpGet]
-        public IActionResult Get()
-        {
-            var toDOs = dataManager.toDoElementRepository.Get();
-            return Ok(toDOs);
-        }
-```
-
-## Заключение
-На примерах были рассмотрены некоторые принципы работы с компонентами Blazor. Описали некоторую структуру странички, попробовали использовать @bind для связи значений, назначали методы из блока @code на события html элементов, рассмотрели общий принцип отправки запросов на сервер.
+Я рекомендую всем начинающим разработчикам веб-приложений обратить внимание на Blazor и попробовать создать свое первое веб-приложение. Вам понравится его интуитивная природа и мощные возможности.
