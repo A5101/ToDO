@@ -11,11 +11,12 @@ namespace BlazorApp2.Shared
     {
         [Required]
         public Guid Id { get; set; }
-        public ToDoElement() => DateAdded = DateTime.Now;
+        public ToDoElement() => DateStarted = DateTime.Now;
         public string? Title { get; set; }
         public string? Description { get; set; }
         public bool IsComplete { get; set; }
-        public DateTime DateAdded { get; set; }
+        public DateTime DateStarted { get; set; }
         public DateTime? DateCompleted { get; set; }
+        public DateTime DatePlannedEnd { get; set; }
     }
 }

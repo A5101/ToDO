@@ -23,6 +23,18 @@ namespace BlazorApp2.Server.Controllers
             return Ok(toDOs);
         }
 
+        [HttpPost("FetchByDates")]
+        public IActionResult FetchByDates(List<DateTime> dates)
+        {
+            List<ToDoElement> toDOs;
+            if (!dates.Any())
+            {
+                toDOs = dataManager.toDoElementRepository.Get();
+            }
+            else toDOs = dataManager.toDoElementRepository.FetchTasks(dates);
+            return Ok(toDOs);
+        }
+
         [HttpPost]
         public IActionResult Add(ToDoElement toDoElement)
         {

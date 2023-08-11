@@ -1,0 +1,280 @@
+﻿@page "/calendar"
+
+<h3>Choose dates</h3>
+
+
+<div class="border border-dark" style="border-radius:2rem; ">
+    <div class="mb-2" style="display: flex;justify-content: center; margin-top: 20px;">
+        <div class="date-container">
+            <button @onclick="ShowPreviousMonth">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M15 6l-6 6l6 6"></path>
+                </svg>
+            </button>
+            <h4>@currentDate.ToString("MMMM yyyy")</h4>
+            <button @onclick="ShowNextMonth">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M9 6l6 6l-6 6"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+
+    <div class="days-of-week ms-2 mb-1 me-1">
+        @foreach (var dayOfWeek in Enum.GetValues(typeof(DayOfWeek)))
+        {
+            <div>@dayOfWeek.ToString().Substring(0, 3)</div>
+        }
+    </div>
+
+
+    <div class="calendar-days ms-2 mb-2 me-2">
+        @for (var i = (int)daysInMonth[0].DayOfWeek; i > 0; i--)
+        {
+            <div class="other-month">
+                @GetDayOfMonthForPreviousMonth(i).Day
+            </div>
+        }
+
+        @foreach (var day in daysInMonth)
+        {
+            <div class="@GetDayCssClass(day)"
+             @onmousedown="() => StartSelection(day)"
+             @onmousemove="() => UpdateSelection(day)"
+             @onmouseup="() => EndSelection(day)">
+                @day.Day
+            </div>
+        }
+        @*
+        @for (var i = 1; i <= 7 - (int)daysInMonth[daysInMonth.Count - 1].DayOfWeek; i++)
+        {
+        <div class="empty-day">
+        @GetDayOfMonthForNextMonth(i).Day
+        </div>
+        }*@
+    </div>
+</div>
+
+
+
+@code {
+    private DateTime currentDate = DateTime.Now;
+    private List<DateTime> daysInMonth;
+    private DateTime selectionStart;
+    private DateTime selectionEnd;
+    private bool isSelecting;
+    [Parameter]
+    public HashSet<DateTime> SelectedDates { get; set; }
+    [Parameter]
+    public EventCallback<HashSet<DateTime>> SelectedDatesChanged { get; set; }
+
+
+    protected override void OnInitialized()
+    {
+        UpdateDaysInMonth();
+        SelectedDates = new HashSet<DateTime>();
+    }
+
+    private void UpdateDaysInMonth()
+    {
+        daysInMonth = Enumerable.Range(1, DateTime.DaysInMonth(currentDate.Year, currentDate.Month))
+            .Select(day => new DateTime(currentDate.Year, currentDate.Month, day))
+            .ToList();
+        StateHasChanged();
+    }
+
+    private void ShowPreviousMonth()
+    {
+        currentDate = currentDate.AddMonths(-1);
+        UpdateDaysInMonth();
+    }
+
+    private void ShowNextMonth()
+    {
+        currentDate = currentDate.AddMonths(1);
+        UpdateDaysInMonth();
+    }
+
+    private void ToggleDaySelection(DateTime day)
+    {
+        if (SelectedDates.Contains(day.Date))
+            SelectedDates.Remove(day.Date);
+        else
+            SelectedDates.Add(day.Date);
+    }
+
+    private string GetDayCssClass(DateTime day)
+    {
+        if (day.Date == DateTime.Today)
+            return "today";
+
+        if (day.Month != currentDate.Month)
+            return "other-month";
+
+        if (SelectedDates.Contains(day.Date))
+            return "selected-day";
+
+        if (isSelecting && day >= selectionStart && day <= selectionEnd)
+            return "selected-range";
+
+        return "current-month";
+    }
+
+    private DateTime GetDayOfMonthForPreviousMonth(int daysToSubtract)
+    {
+        var firstDayOfCurrentMonth = new DateTime(currentDate.Year, currentDate.Month, 1);
+        return firstDayOfCurrentMonth.AddDays(-daysToSubtract);
+    }
+
+    private DateTime GetDayOfMonthForNextMonth(int daysToAdd)
+    {
+        var lastDayOfCurrentMonth = new DateTime(currentDate.Year, currentDate.Month, DateTime.DaysInMonth(currentDate.Year, currentDate.Month));
+        return lastDayOfCurrentMonth.AddDays(daysToAdd);
+    }
+
+    private void StartSelection(DateTime day)
+    {
+        selectionStart = day;
+        selectionEnd = day;
+        isSelecting = true;
+    }
+
+    private void UpdateSelection(DateTime day)
+    {
+        if (isSelecting)
+        {
+            selectionEnd = day;
+            UpdateSelectedRange();
+        }
+    }
+
+    private void EndSelection(DateTime day)
+    {
+        isSelecting = false;
+        UpdateSelectedRange();
+    }
+
+    private void UpdateSelectedRange()
+    {
+        var startDate = selectionStart < selectionEnd ? selectionStart : selectionEnd;
+        var endDate = selectionStart < selectionEnd ? selectionEnd : selectionStart;
+
+        if (SelectedDates.Count() == 1 && SelectedDates.Contains(startDate))
+        {
+            SelectedDates.Clear();
+        }
+        else
+        {
+            SelectedDates.Clear();
+            for (var date = startDate; date <= endDate; date = date.AddDays(1))
+            {
+
+                SelectedDates.Add(date);
+            }
+        }
+    }
+
+}
+
+<style>
+
+    .date-container {
+        display: flex;
+        align-items: center; /* Выравнивание элементов по центру по вертикали */
+    }
+
+        .date-container button {
+            margin: 0; /* Убираем отступы у кнопок */
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .date-container h4 {
+            margin: 0 20px; /* Добавляем небольшой отступ между кнопками и датой */
+        }
+
+    .days-of-week {
+        display: grid;
+        grid-template-columns: repeat(7, 0.2fr);
+        text-align: start;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .calendar-days {
+        display: grid;
+        grid-template-columns: repeat(7, 0.2fr);
+        gap: 5px;
+    }
+
+        .calendar-days div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            cursor: pointer;
+            user-select: none;
+        }
+
+            .calendar-days div:hover {
+                background-color: #f2f2f2;
+            }
+
+    .empty-day {
+        width: 30px;
+        height: 30px;
+    }
+
+    .current-month {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border: 1px solid #ccc;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+        .current-month:hover {
+            background-color: #f2f2f2;
+        }
+
+    .other-month {
+        color: #ccc;
+        opacity: 0.6; /* Это значение можно настроить в зависимости от вашего дизайна */
+    }
+
+    .selected-day {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border: 1px solid #007bff;
+        border-radius: 50%;
+        cursor: pointer;
+        background-color: #e6f0ff;
+    }
+
+        .selected-day:hover {
+            background-color: #d5e5ff;
+        }
+
+    .selected-range {
+        background-color: #e6f0ff; /* Цвет фона для выделенного диапазона дат */
+    }
+
+    .today {
+        background-color: #ffecb3; /* Цвет фона для текущей даты */
+        font-weight: bold;
+    }
+
+</style>

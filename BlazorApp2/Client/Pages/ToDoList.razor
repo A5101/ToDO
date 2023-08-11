@@ -1,16 +1,30 @@
 ﻿@page "/todo"
 @inject HttpClient client
 
-@if (!toDoList.Any())
-{
-    <h3>ToDoList is empty! Add new ToDo</h3>
-}
-else
-{
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">ToDoList</h3>
+
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">ToDoList</h3>
+        <p class="d-inline-flex align-self-center gap-1">
+            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#calendar" aria-expanded="false" aria-controls="collapseExample">
+                Show date filter
+            </button>
+        </p>
+        <div class="collapse custom-modal" id="calendar">
+            <div class="card card-body">
+                <Calendar @bind-SelectedDates="dates"></Calendar>
+                <button class="btn btn-primary mt-2" @onclick="()=>Refresh()">Filter</button>
+            </div>
         </div>
+    </div>
+    @if (!toDoList.Any())
+    {
+        <h3>ToDoList is empty! Add new ToDo</h3>
+    }
+    else
+    {
+
         <div class="table-responsive">
             <table class="table  card-table table-vcenter" style="margin-bottom:0rem !important">
                 <thead>
@@ -18,8 +32,9 @@ else
                         <th class="w-1 pe-0">Status</th>
                         <th class="w-1">Title</th>
                         <th class="w-100">Description</th>
-                        <th class="w-100">Date Added</th>
+                        <th class="w-100">Date Start</th>
                         <th class="w-100">Date Completed</th>
+                        <th class="w-100">Date Planned End</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -46,25 +61,28 @@ else
                                 <h4 class="ms-2">@toDo.Description</h4>
                             </td>
                             <td class="w-100">
-                                <h4 class="ms-1">@($"{toDo.DateAdded:f}")</h4>
+                                <h4 class="ms-1">@($"{toDo.DateStarted:D}")</h4>
                             </td>
 
                             <td class="w-100">
-                                <h4 class="ms-1">@(toDo.DateCompleted == null ? "---------" : $"{toDo.DateCompleted:f}")</h4>
+                                <h4 class="ms-1">@(toDo.DateCompleted == null ? "---------" : $"{toDo.DateCompleted:D}")</h4>
+                            </td>
+
+                            <td class="w-100">
+                                <h4 class="ms-1">@($"{toDo.DatePlannedEnd:D}")</h4>
                             </td>
 
                             <td>
-
                                 <button class="btn btn-primary" @onclick="() => DeleteToDo(toDo.Id)">Delete</button>
-
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
         </div>
-    </div>
-}
+    }
+</div>
+
 
 
 <button type="button" class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#toDoModal">
@@ -83,6 +101,9 @@ else
                     <label class="form-label">Title</label>
                     <input required type="text" class="form-control" placeholder="Your ToDo title" @bind=toDoTitle @oninput="OnTitleInput" />
                 </div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <Calendar @bind-SelectedDates="dates"></Calendar>
             </div>
             <div class="modal-body">
                 <div class="col-lg-12">
@@ -117,6 +138,7 @@ else
     private string? toDoTitle = string.Empty;
     private string? toDoDescription = string.Empty;
     private bool showButton = false;
+    private HashSet<DateTime> dates = new HashSet<DateTime>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -128,7 +150,8 @@ else
     {
         if (!string.IsNullOrWhiteSpace(toDoTitle))
         {
-            await client.PostAsJsonAsync<ToDoElement>("api/ToDo/", new ToDoElement() { Title = toDoTitle, Description = toDoDescription, Id = Guid.NewGuid() });
+            await client.PostAsJsonAsync<ToDoElement>("api/ToDo/", new ToDoElement() { Title = toDoTitle, Description = toDoDescription, Id = Guid.NewGuid(), DateStarted = dates.Min().Date, DatePlannedEnd = dates.Max().Date });
+            dates.Clear();
             toDoTitle = string.Empty;
             toDoDescription = string.Empty;
             //Thread.Sleep(200);
@@ -151,7 +174,8 @@ else
 
     private async Task Refresh()
     {
-        toDoList = await client.GetFromJsonAsync<List<ToDoElement>>("api/ToDo");
+        var response = await client.PostAsJsonAsync("api/ToDo/FetchByDates", dates.ToList());
+        toDoList = await response.Content.ReadFromJsonAsync<List<ToDoElement>>();
         StateHasChanged();
     }
 
@@ -176,3 +200,13 @@ else
         await Refresh();
     }
 }
+
+<style>
+    .custom-modal {
+        width: 400px; /* Задайте ширину окна */
+        height: 400px; /* Задайте высоту окна */
+        background-color: white;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        padding: 15px;
+    }
+</style>
