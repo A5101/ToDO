@@ -1,6 +1,6 @@
 ﻿@page "/todo"
 @inject HttpClient client
-
+@inject IJSRuntime jsRuntime
 
 
 <div class="card">
@@ -99,7 +99,7 @@
             <div class="modal-body">
                 <div class="mb-1">
                     <label class="form-label">Title</label>
-                    <input required type="text" class="form-control" placeholder="Your ToDo title" @bind=toDoTitle @oninput="OnTitleInput" />
+                    <input required type="text" id="maskedInput" class="form-control" placeholder="Your ToDo title" @bind=toDoTitle @oninput="OnTitleInput" />
                 </div>
             </div>
             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
@@ -143,6 +143,14 @@
     protected override async Task OnInitializedAsync()
     {
         await Refresh();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await jsRuntime.InvokeVoidAsync("applyMask", "maskedInput", "+{7}(000)000-00-00");
+        }
     }
 
 
@@ -200,6 +208,7 @@
         await Refresh();
     }
 }
+
 
 <style>
     .custom-modal {
