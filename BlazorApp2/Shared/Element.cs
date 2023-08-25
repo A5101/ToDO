@@ -23,6 +23,7 @@ namespace BlazorApp2.Shared
             Properties.Add("margin-bottom", "0px");
             Properties.Add("margin-left", "0px");
             Properties.Add("Text", "");
+            Properties.Add("Checked", "false");
         }
     }
 }

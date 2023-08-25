@@ -1,0 +1,39 @@
+﻿<div class="custom-radio">
+    <div class=" ms-2 radio-outer-circle @GetCircleClass()" @onclick="ToggleChecked">
+        <div class="radio-inner-circle"></div>
+    </div>
+    <span>@Element.Properties["Text"]</span>
+</div>
+
+@code {
+    [Parameter]
+    public Element Element { get; set; }
+    [Parameter]
+    public EventCallback<Element> ElementChanged { get; set; }
+
+    private async Task UpdateChecked(ChangeEventArgs e)
+    {
+        Element.Properties["Checked"] = e.Value.ToString();
+    }
+
+    private string GetStyle()
+    {
+        string res = "";
+        foreach (var prop in Element.Properties)
+        {
+            if (char.IsLower(prop.Key[0]))
+                res += prop.Key + " : " + prop.Value + ";";
+        }
+        return res;
+    }
+    private void ToggleChecked()
+    {
+        var currentValue = Element.Properties["Checked"];
+        Element.Properties["Checked"] = (currentValue == "true") ? "false" : "true";
+    }
+    private string GetCircleClass()
+    {
+        return Element.Properties["Checked"] == "true" ? "checked" : "";
+    }
+
+}

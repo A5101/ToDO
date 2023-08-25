@@ -62,7 +62,37 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+.custom-radio {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
 
+.radio-outer-circle {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+}
+
+.radio-inner-circle {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #ccc;
+}
+
+.radio-outer-circle.checked {
+    border-color: green;
+}
+
+    .radio-outer-circle.checked .radio-inner-circle {
+        background-color: green;
+    }
 
 
 

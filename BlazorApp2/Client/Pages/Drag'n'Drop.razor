@@ -15,6 +15,12 @@
                     <TextBox Element="item"></TextBox>
                 </div>
             }
+            else if (item.Type == "RadioButton")
+            {
+                <div @onclick="() => GetProperties(item)">
+                    <RadioButton Element="item"></RadioButton>
+                </div>
+            }
             <br />
         }
     </div>
@@ -28,6 +34,9 @@
                 <h5 draggable="true" @ondragstart="@(() => DragStart("TextBox"))">
                     TextBox
                 </h5>
+                <h5 draggable="true" @ondragstart="@(() => DragStart("RadioButton"))">
+                    RadioButton
+                </h5>
             </li>
         </ul>
     </div>
@@ -35,7 +44,7 @@
     {
         <div class="properties-panel">
             <div class="table-responsive">
-                <table class="table  card-table table-vcenter" style="margin-bottom:0rem  !important">
+                <table class="table card-table table-vcenter" style="margin-bottom:0rem !important">
                     <thead>
                         <tr>
                             <th class="w-1 pe-0">Property</th>
@@ -43,12 +52,25 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var property in selectedElement.Properties)
+                        @if (selectedElement.Type == "TextBox")
                         {
-                            <tr>
-                                <td>@property.Key</td>
-                                <td><input @bind=@selectedElement.Properties[property.Key] /></td>
-                            </tr>
+                            @foreach (var property in selectedElement.Properties)
+                            {
+                                @if (property.Key != "Checked")
+                                {
+                                    <tr>
+                                        <td>@property.Key</td>
+                                        <td><input @bind=@selectedElement.Properties[property.Key] /></td>
+                                    </tr>
+                                }
+                            }
+                        }
+                        @if (selectedElement.Type == "RadioButton")
+                        {
+                        <tr>
+                            <td>Checked</td>
+                            <td><input @bind=@selectedElement.Properties["Checked"] /></td>
+                        </tr>
                         }
                     </tbody>
                 </table>
@@ -147,5 +169,13 @@
     input {
         width: 100%;
         padding: 0.25rem;
+    }
+
+    .bg-green {
+        background-color: green;
+    }
+
+    .bg-red {
+        background-color: red;
     }
 </style>
