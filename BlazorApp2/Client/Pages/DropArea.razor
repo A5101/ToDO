@@ -1,0 +1,16 @@
+﻿<div style="width:200px; height:200px">
+    <h2>Drag here</h2>
+    @foreach (var item in DroppedItems)
+    {
+        @item
+        <br />
+    }
+</div>
+
+@code {
+    [Parameter]
+    public List<RenderFragment> DroppedItems { get; set; }
+
+    [Parameter]
+    public EventCallback<List<RenderFragment>> DroppedItemsChanged { get; set; }
+}

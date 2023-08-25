@@ -30,7 +30,10 @@
     function applyMask(elementId, mask) {
         const element = document.getElementById(elementId);
         const maskOptions = {
-            mask: mask
+            mask: mask,
+            lazy: false, 
+            placeholderChar: '*',
+            overwrite: 'shift',
         };
         const maskInstance = IMask(element, maskOptions);
 

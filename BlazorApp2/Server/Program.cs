@@ -1,6 +1,7 @@
 using BlazorApp2.Server.Domain;
 using BlazorApp2.Server.Domain.Repositories.Abstract;
 using BlazorApp2.Server.Domain.Repositories.EntityFramework;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.ResponseCompression;
 
 namespace BlazorApp2
@@ -16,6 +17,7 @@ namespace BlazorApp2
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
 
+            
             builder.Services.AddTransient<IToDoElementRepository, EFToDoElementRepository>();
             builder.Services.AddTransient<DataManager>();
 

@@ -1,0 +1,24 @@
+﻿<input class="ms-2" type="text" value="@Element.Properties["Text"]" style=@GetStyle(); @oninput="UpdateValue" />
+
+@code {
+    [Parameter]
+    public Element Element { get; set; }
+    [Parameter]
+    public EventCallback<Element> ElementChanged { get; set; }
+
+    private async Task UpdateValue(ChangeEventArgs e)
+    {
+        Element.Properties["Text"] = e.Value.ToString();
+    }
+
+    private string GetStyle()
+    {
+        string res = "";
+        foreach (var prop in Element.Properties)
+        {
+            if (char.IsLower(prop.Key[0]))
+                res += prop.Key + " : " + prop.Value + ";";
+        }
+        return res;
+    }
+}
