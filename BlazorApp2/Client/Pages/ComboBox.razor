@@ -1,0 +1,29 @@
+﻿<select class="ms-2" value="@Element.Properties["Text"]" style="@GetStyle()" @onchange="UpdateValue">
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+</select>
+
+@code {
+    [Parameter]
+    public Element Element { get; set; }
+    [Parameter]
+    public EventCallback<Element> ElementChanged { get; set; }
+
+    private async Task UpdateValue(ChangeEventArgs e)
+    {
+        Element.Properties["Text"] = e.Value.ToString();
+        await ElementChanged.InvokeAsync(Element);
+    }
+
+    private string GetStyle()
+    {
+        string res = "";
+        foreach (var prop in Element.Properties)
+        {
+            if (char.IsLower(prop.Key[0]))
+                res += prop.Key + " : " + prop.Value + ";";
+        }
+        return res;
+    }
+}

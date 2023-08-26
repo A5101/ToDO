@@ -2,11 +2,11 @@
 @using Microsoft.AspNetCore.Components.Rendering
 @page "/drag"
 
-<button class="btn bg-primary mb-2" @onclick="Modify">@(CanModify ? "Save" : "Edit")</button>
+<button class="btn bg-primary mb-2" @onclick="Modify">@(CanModify ? "Сохранить" : "Редактировать")</button>
 
-<div class="dropArea" @ondrop=Drop ondragover="event.preventDefault()" ondragenter="event.preventDefault()">
-    <div class=" border" style="width:250px; height:250px; border-radius:2rem">
-        <h2 class="ms-2 mt-2 mb-2">Drag here</h2>
+<div class="dropArea col-lg-12" @ondrop=Drop ondragover="event.preventDefault()" ondragenter="event.preventDefault()">
+    <div class="border" style="height:50rem !important;">
+        <h2 class="ms-2 mt-2 mb-2">Drag&Drop - Зона</h2>
         @foreach (var item in droppedItems)
         {
             @if (item.Type == "TextBox")
@@ -21,6 +21,12 @@
                     <RadioButton Element="item"></RadioButton>
                 </div>
             }
+            else if (item.Type == "ComboBox")
+            {
+                <div @onclick="() => GetProperties(item)">
+                    <ComboBox Element="item"></ComboBox>
+                </div>
+            }
             <br />
         }
     </div>
@@ -28,14 +34,19 @@
 
 <div class="toolbox border" style=@(CanModify ? "display:block" : "display:none")>
     <div class="element-panel">
-        <h3>Elements</h3>
+        <h3>Элементы Управления
+
+        </h3>
         <ul>
             <li>
-                <h5 draggable="true" @ondragstart="@(() => DragStart("TextBox"))">
+                <h5 class="mt-2 mb-2" draggable="true" @ondragstart="@(() => DragStart("TextBox"))">
                     TextBox
                 </h5>
-                <h5 draggable="true" @ondragstart="@(() => DragStart("RadioButton"))">
+                <h5 class="mt-2 mb-2" draggable="true" @ondragstart="@(() => DragStart("RadioButton"))">
                     RadioButton
+                </h5>
+                <h5 class="mt-2 mb-2" draggable="true" @ondragstart="@(() => DragStart("ComboBox"))">
+                    ComboBox
                 </h5>
             </li>
         </ul>
@@ -71,6 +82,13 @@
                             <td>Checked</td>
                             <td><input @bind=@selectedElement.Properties["Checked"] /></td>
                         </tr>
+                        }
+                        @if (selectedElement.Type == "ComboBox")
+                        {
+                            <tr>
+                                <td>Value</td>
+                                <td><input @bind=@selectedElement.Properties["Text"] /></td>
+                            </tr>
                         }
                     </tbody>
                 </table>

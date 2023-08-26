@@ -16,6 +16,7 @@ namespace BlazorApp2.Shared
 
         public Element()
         {
+            Properties.Add("font-size", "2ex");
             Properties.Add("width", "50px");
             Properties.Add("heigth", "50px");
             Properties.Add("margin-right", "0px");
