@@ -107,14 +107,22 @@
 
     private Element selectedElement;
 
+    private bool isDraggingFromToolbox = false;
+
     private void Drop()
     {
-        droppedItems.Add(new Element() { Type = currentDragType });
+        if (isDraggingFromToolbox)
+        {
+            droppedItems.Add(new Element() { Type = currentDragType });
+            isDraggingFromToolbox = false;
+        }
     }
 
     private void DragStart(string item)
     {
         currentDragType = item;
+        isDraggingFromToolbox = true;
+
     }
 
     private void GetProperties(Element item)
