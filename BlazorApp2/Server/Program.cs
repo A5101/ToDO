@@ -18,7 +18,7 @@ namespace BlazorApp2
             builder.Services.AddRazorPages();
 
             
-            builder.Services.AddTransient<IToDoElementRepository, EFToDoElementRepository>();
+            builder.Services.AddTransient<IElementRepository, EFElementRepository>();
             builder.Services.AddTransient<DataManager>();
 
             builder.Services.AddDbContext<AppDbContext>();

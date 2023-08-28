@@ -2,7 +2,7 @@
     <div class=" ms-2 radio-outer-circle @GetCircleClass()" @onclick="ToggleChecked">
         <div class="radio-inner-circle"></div>
     </div>
-    <span>@Element.Properties["Text"]</span>
+    <span>@Element.GetProperties()["Text"]</span>
 </div>
 
 @code {
@@ -13,13 +13,15 @@
 
     private async Task UpdateChecked(ChangeEventArgs e)
     {
-        Element.Properties["Checked"] = e.Value.ToString();
+        var dic = Element.GetProperties();
+        dic["Text"]= e.Value.ToString();
+        Element.SetProperties(dic);
     }
 
     private string GetStyle()
     {
         string res = "";
-        foreach (var prop in Element.Properties)
+        foreach (var prop in Element.GetProperties())
         {
             if (char.IsLower(prop.Key[0]))
                 res += prop.Key + " : " + prop.Value + ";";
@@ -28,12 +30,12 @@
     }
     private void ToggleChecked()
     {
-        var currentValue = Element.Properties["Checked"];
-        Element.Properties["Checked"] = (currentValue == "true") ? "false" : "true";
+        var currentValue = Element.GetProperties()["Checked"];
+        Element.GetProperties()["Checked"] = (currentValue == "true") ? "false" : "true";
     }
     private string GetCircleClass()
     {
-        return Element.Properties["Checked"] == "true" ? "checked" : "";
+        return Element.GetProperties()["Checked"] == "true" ? "checked" : "";
     }
 
 }

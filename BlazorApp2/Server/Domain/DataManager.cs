@@ -9,11 +9,11 @@ namespace BlazorApp2.Server.Domain
 {
     public class DataManager
     {
-        public IToDoElementRepository toDoElementRepository { get; set; }
+        public IElementRepository ElementRepository { get; set; }
 
-        public DataManager(IToDoElementRepository toDoElementRepository)
+        public DataManager(IElementRepository elementRepository)
         {
-            this.toDoElementRepository = toDoElementRepository;
+            this.ElementRepository = elementRepository;
         }
     }
 }

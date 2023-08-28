@@ -7,12 +7,11 @@ using System.Threading.Tasks;
 
 namespace BlazorApp2.Server.Domain.Repositories.Abstract
 {
-    public interface IToDoElementRepository
+    public interface IElementRepository
     {
-        public void Add(ToDoElement toDoElement);
+        public void Add(Element element);
         public void Delete(Guid id);
-        public List<ToDoElement> Get();
-        public void Update(ToDoElement toDoElement);
-        public List<ToDoElement> FetchTasks(List<DateTime> dates);
+        public List<Element> Get();
+        public void Update(Element element);
     }
 }

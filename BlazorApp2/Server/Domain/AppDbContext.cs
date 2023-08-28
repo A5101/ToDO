@@ -10,7 +10,7 @@ namespace BlazorApp2.Server.Domain
 {
     public class AppDbContext:DbContext
     {
-        public DbSet<ToDoElement> ToDoElements { get; set; }
+        public DbSet<Element> Elements { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

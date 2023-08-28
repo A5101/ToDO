@@ -1,6 +1,7 @@
 ﻿@using BlazorApp2.Client.Pages
 @using Microsoft.AspNetCore.Components.Rendering
 @page "/drag"
+@inject HttpClient client
 
 <button class="btn bg-primary mb-2" @onclick="Modify">@(CanModify ? "Сохранить" : "Редактировать")</button>
 
@@ -34,7 +35,8 @@
 
 <div class="toolbox border" style=@(CanModify ? "display:block" : "display:none")>
     <div class="element-panel">
-        <h3>Элементы Управления
+        <h3>
+            Элементы Управления
 
         </h3>
         <ul>
@@ -65,29 +67,29 @@
                     <tbody>
                         @if (selectedElement.Type == "TextBox")
                         {
-                            @foreach (var property in selectedElement.Properties)
+                            @foreach (var property in Properties)
                             {
                                 @if (property.Key != "Checked")
                                 {
                                     <tr>
                                         <td>@property.Key</td>
-                                        <td><input @bind=@selectedElement.Properties[property.Key] /></td>
+                                        <td><input @bind=@Properties[property.Key] @onblur="() => UpdateElement(selectedElement)" /></td>
                                     </tr>
                                 }
                             }
                         }
                         @if (selectedElement.Type == "RadioButton")
                         {
-                        <tr>
-                            <td>Checked</td>
-                            <td><input @bind=@selectedElement.Properties["Checked"] /></td>
-                        </tr>
+                            <tr>
+                                <td>Checked</td>
+                                <td><input @bind=@Properties["Checked"] @onblur="() => UpdateElement(selectedElement)" /></td>
+                            </tr>
                         }
                         @if (selectedElement.Type == "ComboBox")
                         {
                             <tr>
                                 <td>Value</td>
-                                <td><input @bind=@selectedElement.Properties["Text"] /></td>
+                                <td><input @bind=@Properties["Text"] @onblur="() => UpdateElement(selectedElement)" /></td>
                             </tr>
                         }
                     </tbody>
@@ -106,16 +108,36 @@
     private bool CanModify = false;
 
     private Element selectedElement;
+    private Dictionary<string, string> Properties;
 
     private bool isDraggingFromToolbox = false;
 
-    private void Drop()
+    private async Task Drop()
     {
         if (isDraggingFromToolbox)
         {
-            droppedItems.Add(new Element() { Type = currentDragType });
+            await client.PostAsJsonAsync<Element>("api/Element/", new Element() { Type = currentDragType, Id = Guid.NewGuid() });
             isDraggingFromToolbox = false;
+            Refresh();
         }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Refresh();
+    }
+
+    private async Task Refresh()
+    {
+        droppedItems = await client.GetFromJsonAsync<List<Element>>("api/Element");
+        StateHasChanged();
+    }
+
+    private async Task UpdateElement(Element element)
+    {
+        element.SetProperties(Properties);
+        await client.PutAsJsonAsync($"api/Element", element);
+        await Refresh();
     }
 
     private void DragStart(string item)
@@ -130,6 +152,7 @@
         if (CanModify)
         {
             selectedElement = item;
+            Properties = item.GetProperties();
         }
     }
 

@@ -1,4 +1,4 @@
-﻿<input class="ms-2" type="text" value="@Element.Properties["Text"]" style=@GetStyle(); @oninput="UpdateValue" />
+﻿<input class="ms-2" type="text" value="@Element.GetProperties()["Text"]" style=@GetStyle(); @oninput="UpdateValue" />
 
 @code {
     [Parameter]
@@ -8,13 +8,15 @@
 
     private async Task UpdateValue(ChangeEventArgs e)
     {
-        Element.Properties["Text"] = e.Value.ToString();
+        var dic = Element.GetProperties();
+        dic["Text"]= e.Value.ToString();
+        Element.SetProperties(dic);
     }
 
     private string GetStyle()
     {
         string res = "";
-        foreach (var prop in Element.Properties)
+        foreach (var prop in Element.GetProperties())
         {
             if (char.IsLower(prop.Key[0]))
                 res += prop.Key + " : " + prop.Value + ";";

@@ -1,4 +1,4 @@
-﻿<select class="ms-2" value="@Element.Properties["Text"]" style="@GetStyle()" @onchange="UpdateValue">
+﻿<select class="ms-2" value="@Element.GetProperties()["Text"]" style="@GetStyle()" @onchange="UpdateValue">
     <option value="1">1</option>
     <option value="2">2</option>
     <option value="3">3</option>
@@ -12,14 +12,16 @@
 
     private async Task UpdateValue(ChangeEventArgs e)
     {
-        Element.Properties["Text"] = e.Value.ToString();
+        var dic = Element.GetProperties();
+        dic["Text"] = e.Value.ToString();
+        Element.SetProperties(dic);
         await ElementChanged.InvokeAsync(Element);
     }
 
     private string GetStyle()
     {
         string res = "";
-        foreach (var prop in Element.Properties)
+        foreach (var prop in Element.GetProperties())
         {
             if (char.IsLower(prop.Key[0]))
                 res += prop.Key + " : " + prop.Value + ";";
