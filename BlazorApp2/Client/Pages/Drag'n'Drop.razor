@@ -10,6 +10,19 @@
 <div class="dropArea col-lg-12" @ondrop=Drop ondragover="event.preventDefault()" ondragenter="event.preventDefault()">
     <div class="border" style="height:50rem !important;">
         <h2 class="ms-2 mt-2 mb-2">Drag&Drop - Зона</h2>
+        <select class="form-select" @onchange="ChangeBtnCollor">
+            <option value="blue">Зеленная кнопка</option>
+            <option value="red">Красная кнопка</option>
+        </select>
+        <h3 class="mb-2 mt-2">Button color is @btnCollor</h3>
+        @if (btnCollor == "green")
+        {
+            <button class="btn btn-success" name="greenBtn">Зеленная кнопка</button>
+        }
+        else
+        {
+            <button class="btn btn-danger" name="redBtn">Красная кнопка</button>
+        }
         @foreach (var item in droppedItems)
         {
             @if (item.Type == "TextBox")
@@ -119,6 +132,8 @@
 
     private string currentDragType = "";
 
+    private string btnCollor = "green";
+
     private string newOption = "";
 
     private bool CanModify = false;
@@ -131,6 +146,14 @@
 
 
     private bool isDraggingFromToolbox = false;
+
+    private void ChangeBtnCollor()
+    {
+        if (btnCollor == "green")
+            btnCollor = "red";
+        else
+            btnCollor = "green";
+    }
 
     private async Task Drop()
     {
