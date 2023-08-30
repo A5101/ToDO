@@ -1,13 +1,14 @@
 ﻿<select class="ms-2" value="" style="@GetStyle()" @onchange="UpdateValue">
-    @foreach (var option in Element.ComboBoxOptions)
+    @foreach (var option in Element.GetOptions())
     {
-        <option value="@Guid.NewGuid()"></option>
+        <option value="@option.Key">@option.Value</option>
     }
 </select>
 
 
 
 @code {
+    
     [Parameter]
     public Element Element { get; set; }
     [Parameter]
