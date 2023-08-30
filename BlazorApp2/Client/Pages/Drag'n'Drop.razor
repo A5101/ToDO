@@ -92,10 +92,14 @@
                             @foreach (var option in ComboBoxOptions)
                             {
                                 <tr>
-                                    <td>@option.Key</td>
+                                    <td class="text-truncate">@option.Key</td>
                                     <td>@option.Value</td>
                                 </tr>
                             }
+                            <tr>
+                                <td class="text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Ключ будет сгенерирован автоматически">Key</td>
+                                <td><input @bind=@newOption/></td>
+                            </tr>
 
                             <button class="btn bg-success text-white mt-2 d-flex justify-content-end" @onclick="() => UpdateElementOptions(selectedElement)">Добавить option</button>
                         }
@@ -114,6 +118,8 @@
     private List<Element> droppedItems = new List<Element>();
 
     private string currentDragType = "";
+
+    private string newOption = "";
 
     private bool CanModify = false;
 
@@ -156,7 +162,7 @@
     }
     private async Task UpdateElementOptions(Element element)
     {
-        ComboBoxOptions.Add(Guid.NewGuid().ToString(), "Kirill");
+        ComboBoxOptions.Add(Guid.NewGuid().ToString(), newOption);
         element.SetOptions(ComboBoxOptions);
         await client.PutAsJsonAsync($"api/Element", element);
         await Refresh();

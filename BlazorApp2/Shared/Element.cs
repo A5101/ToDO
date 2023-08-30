@@ -49,8 +49,8 @@ namespace BlazorApp2.Shared
             dictionary.Add("Checked", "false");
 
             var optionsDic = new Dictionary<string, string>();
-            optionsDic.Add("key1", "Sanya");
-            optionsDic.Add("key2", "Lesha");
+            optionsDic.Add(Guid.NewGuid().ToString(), "Sanya");
+            optionsDic.Add(Guid.NewGuid().ToString(), "Lesha");
 
             ComboBoxOptions = JsonSerializer.Serialize(optionsDic, typeof(Dictionary<string, string>)); ;
             Properties = JsonSerializer.Serialize(dictionary, typeof(Dictionary<string, string>));
