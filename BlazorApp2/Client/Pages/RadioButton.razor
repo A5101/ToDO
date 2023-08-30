@@ -1,5 +1,5 @@
 ﻿<div class="custom-radio">
-    <div class=" ms-2 radio-outer-circle @GetCircleClass()" @onclick="ToggleChecked">
+    <div class="ms-2 radio-outer-circle @GetCircleClass()" @onclick="ToggleChecked">
         <div class="radio-inner-circle"></div>
     </div>
     <span>@Element.GetProperties()["Text"]</span>
@@ -14,7 +14,7 @@
     private async Task UpdateChecked(ChangeEventArgs e)
     {
         var dic = Element.GetProperties();
-        dic["Text"]= e.Value.ToString();
+        dic["Text"] = e.Value.ToString();
         Element.SetProperties(dic);
     }
 
@@ -28,10 +28,14 @@
         }
         return res;
     }
-    private void ToggleChecked()
+    private async Task ToggleChecked()
     {
         var currentValue = Element.GetProperties()["Checked"];
-        Element.GetProperties()["Checked"] = (currentValue == "true") ? "false" : "true";
+        var newValue = (currentValue == "true") ? "false" : "true";
+        var dic = Element.GetProperties();
+        dic["Checked"] = newValue;
+        Element.SetProperties(dic);
+        await ElementChanged.InvokeAsync(Element);
     }
     private string GetCircleClass()
     {
