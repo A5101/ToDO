@@ -1,8 +1,11 @@
-﻿<select class="ms-2" value="@Element.GetProperties()["Text"]" style="@GetStyle()" @onchange="UpdateValue">
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
+﻿<select class="ms-2" value="" style="@GetStyle()" @onchange="UpdateValue">
+    @foreach (var option in Element.ComboBoxOptions)
+    {
+        <option value="@Guid.NewGuid()"></option>
+    }
 </select>
+
+
 
 @code {
     [Parameter]

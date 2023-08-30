@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
@@ -26,6 +28,7 @@ namespace BlazorApp2.Shared
                 Properties = JsonSerializer.Serialize(dic, typeof(Dictionary<string, string>));
             }
         }
+        public string ComboBoxOptions { get; set; }
 
         public string Properties { get; set; }
 
@@ -33,6 +36,7 @@ namespace BlazorApp2.Shared
 
         public Element()
         {
+
             var dictionary = new Dictionary<string, string>();
             dictionary.Add("font-size", "2ex");
             dictionary.Add("width", "50px");
@@ -43,17 +47,33 @@ namespace BlazorApp2.Shared
             dictionary.Add("margin-left", "0px");
             dictionary.Add("Text", "");
             dictionary.Add("Checked", "false");
+
+            var optionsDic = new Dictionary<string, string>();
+            optionsDic.Add("key1", "Sanya");
+            optionsDic.Add("key2", "Lesha");
+
+            ComboBoxOptions = JsonSerializer.Serialize(optionsDic, typeof(Dictionary<string, string>)); ;
             Properties = JsonSerializer.Serialize(dictionary, typeof(Dictionary<string, string>));
         }
 
         public Dictionary<string, string> GetProperties()
         {
-            return(Dictionary<string, string>)JsonSerializer.Deserialize(Properties, typeof(Dictionary<string, string>));
+            return (Dictionary<string, string>)JsonSerializer.Deserialize(Properties, typeof(Dictionary<string, string>));
         }
 
         public void SetProperties(Dictionary<string, string> dic)
         {
             Properties = JsonSerializer.Serialize(dic, typeof(Dictionary<string, string>));
         }
+
+        public Dictionary<string, string> GetOptions()
+        {
+            return (Dictionary<string, string>)JsonSerializer.Deserialize(ComboBoxOptions, typeof(Dictionary<string, string>));
+        }
+        public void SetOptions(Dictionary<string, string> dic)
+        {
+            ComboBoxOptions = JsonSerializer.Serialize(dic, typeof(Dictionary<string, string>));
+        }
+
     }
 }

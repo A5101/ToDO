@@ -1,5 +1,7 @@
 ﻿@using BlazorApp2.Client.Pages
 @using Microsoft.AspNetCore.Components.Rendering
+@using System.Text.Json
+
 @page "/drag"
 @inject HttpClient client
 
@@ -24,7 +26,7 @@
             }
             else if (item.Type == "ComboBox")
             {
-                <div @onclick="() => GetProperties(item)">
+                <div @onclick="() => GetOptions(item)">
                     <ComboBox Element="item"></ComboBox>
                 </div>
             }
@@ -87,16 +89,24 @@
                         }
                         @if (selectedElement.Type == "ComboBox")
                         {
-                            <tr>
-                                <td>Value</td>
-                                <td><input @bind=@Properties["Text"] @onblur="() => UpdateElement(selectedElement)" /></td>
-                            </tr>
+                            @foreach (var option in ComboBoxOptions)
+                            {
+                                <tr>
+                                    <td>@option.Key</td>
+                                    <td>@option.Value</td>
+                                </tr>
+                            }
+
+                            <button class="btn bg-success text-white mt-2 d-flex justify-content-end" @onclick="() => UpdateElementOptions(selectedElement)">Добавить option</button>
                         }
+
                     </tbody>
                 </table>
             </div>
         </div>
     }
+
+
 
 </div>
 
@@ -107,8 +117,12 @@
 
     private bool CanModify = false;
 
-    private Element selectedElement;
+    public Element selectedElement { get; set; }
+
     private Dictionary<string, string> Properties;
+
+    private Dictionary<string, string> ComboBoxOptions = new Dictionary<string, string>();
+
 
     private bool isDraggingFromToolbox = false;
 
@@ -135,10 +149,19 @@
 
     private async Task UpdateElement(Element element)
     {
+
         element.SetProperties(Properties);
         await client.PutAsJsonAsync($"api/Element", element);
         await Refresh();
     }
+    private async Task UpdateElementOptions(Element element)
+    {
+        ComboBoxOptions.Add(Guid.NewGuid().ToString(), "Kirill");
+        element.SetOptions(ComboBoxOptions);
+        await client.PutAsJsonAsync($"api/Element", element);
+        await Refresh();
+    }
+
 
     private void DragStart(string item)
     {
@@ -155,6 +178,14 @@
             Properties = item.GetProperties();
         }
     }
+    private void GetOptions(Element item)
+    {
+        if (CanModify)
+        {
+            selectedElement = item;
+            ComboBoxOptions = item.GetOptions();
+        }
+    }
 
     private void Modify()
     {
@@ -166,6 +197,7 @@
     {
         selectedElement = null;
     }
+
 }
 
 <style>
