@@ -47,6 +47,7 @@ namespace BlazorApp2.Shared
             dictionary.Add("margin-left", "0px");
             dictionary.Add("Text", "");
             dictionary.Add("Checked", "false");
+            dictionary.Add("Mask", "");
 
             var optionsDic = new Dictionary<string, string>();
             optionsDic.Add(Guid.NewGuid().ToString(), "Sanya");

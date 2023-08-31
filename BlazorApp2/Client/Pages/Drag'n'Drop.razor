@@ -4,6 +4,8 @@
 
 @page "/drag"
 @inject HttpClient client
+@inject IJSRuntime jsRuntime
+@inject NavigationManager uriHelper;
 
 <button class="btn bg-primary mb-2" @onclick="Modify">@(CanModify ? "Сохранить" : "Редактировать")</button>
 
@@ -27,7 +29,7 @@
 
 
         <div style="margin-top: 1rem;">
-           
+
             <label for="firstComboBox">Select an option in the first ComboBox:</label>
             <select id="firstComboBox" @bind="selectedFirstOption">
                 <option value="">Select an option</option>
@@ -37,7 +39,7 @@
         </div>
 
         <div style="margin-top: 1rem;">
-            
+
             <label for="secondComboBox">Values in the second ComboBox:</label>
             <select id="secondComboBox">
                 @foreach (var option in GetSecondComboBoxOptions(selectedFirstOption))
@@ -46,27 +48,42 @@
                 }
             </select>
         </div>
-      
+
         @foreach (var item in droppedItems)
         {
-            @if (item.Type == "TextBox")
-            {
-                <div @onclick="() => GetProperties(item)">
-                    <TextBox Element="item"></TextBox>
-                </div>
-            }
-            else if (item.Type == "RadioButton")
-            {
-                <div @onclick="() => GetProperties(item)">
-                    <RadioButton Element="item"></RadioButton>
-                </div>
-            }
-            else if (item.Type == "ComboBox")
-            {
-                <div @onclick="() => GetOptions(item)">
-                    <ComboBox Element="item"></ComboBox>
-                </div>
-            }
+            <div class="mt-2">
+                @if (item.Type == "TextBox")
+                {
+                    <div class="d-inline-block" @onclick="() => GetProperties(item)">
+                        <TextBox Element="item"></TextBox>
+                    </div>
+                }
+                else if (item.Type == "RadioButton")
+                {
+                    <div class="d-inline-block" @onclick="() => GetProperties(item)">
+                        <RadioButton Element="item"></RadioButton>
+                    </div>
+                }
+                else if (item.Type == "ComboBox")
+                {
+                    <div class="d-inline-block" @onclick="() => GetOptions(item)">
+                        <ComboBox Element="item"></ComboBox>
+                    </div>
+                }
+                @if (CanModify)
+                {
+                    <button class="d-inline-block ms-1" @onclick="() => DeleteElement(item)">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M4 7l16 0"></path>
+                            <path d="M10 11l0 6"></path>
+                            <path d="M14 11l0 6"></path>
+                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                        </svg>
+                    </button>
+                }
+            </div>
             <br />
         }
     </div>
@@ -110,10 +127,20 @@
                             {
                                 @if (property.Key != "Checked")
                                 {
-                                    <tr>
-                                        <td>@property.Key</td>
-                                        <td><input @bind=@Properties[property.Key] @onblur="() => UpdateElement(selectedElement)" /></td>
-                                    </tr>
+                                    @if (property.Key != "Mask")
+                                    {
+                                        <tr>
+                                            <td>@property.Key</td>
+                                            <td><input @bind=@Properties[property.Key] @onblur="() => UpdateElement(selectedElement)" /></td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td>@property.Key</td>
+                                            <td><input @bind=@Properties[property.Key] @onblur="() => UpdateElementWithMask(selectedElement)" /></td>
+                                        </tr>
+                                    }
                                 }
                             }
                         }
@@ -135,7 +162,7 @@
                             }
                             <tr>
                                 <td class="text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Ключ будет сгенерирован автоматически">Key</td>
-                                <td><input @bind=@newOption/></td>
+                                <td><input @bind=@newOption /></td>
                             </tr>
 
                             <button class="btn bg-success text-white mt-2 d-flex justify-content-end" @onclick="() => UpdateElementOptions(selectedElement)">Добавить option</button>
@@ -179,6 +206,11 @@
             btnCollor = "green";
     }
 
+    private async void SetMask(Guid id, string mask)
+    {
+        await jsRuntime.InvokeVoidAsync("applyMask", id, mask);
+    }
+
     private async Task Drop()
     {
         if (isDraggingFromToolbox)
@@ -198,15 +230,31 @@
     {
         droppedItems = await client.GetFromJsonAsync<List<Element>>("api/Element");
         StateHasChanged();
+        //Thread.Sleep(500);
+        foreach (var el in droppedItems)
+        {
+            if (el.Type == "TextBox")
+            {
+                SetMask(el.Id, el.GetProperties()["Mask"]);
+            }
+        }
     }
 
     private async Task UpdateElement(Element element)
     {
-
         element.SetProperties(Properties);
         await client.PutAsJsonAsync($"api/Element", element);
         await Refresh();
     }
+
+    private async Task UpdateElementWithMask(Element element)
+    {
+        element.SetProperties(Properties);
+        await client.PutAsJsonAsync($"api/Element", element);
+        await Refresh();
+        uriHelper.NavigateTo(uriHelper.Uri, forceLoad: true);
+    }
+
     private async Task UpdateElementOptions(Element element)
     {
         ComboBoxOptions.Add(Guid.NewGuid().ToString(), newOption);
@@ -215,6 +263,11 @@
         await Refresh();
     }
 
+    private async Task DeleteElement(Element element)
+    {
+        await client.DeleteAsync("api/Element/?id=" + element.Id);
+        await Refresh();
+    }
 
     private void DragStart(string item)
     {
