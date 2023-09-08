@@ -39,4 +39,11 @@
 
         return maskInstance;
     }
+
+    function getElementByCoordinates(x, y) {
+        // Используем document.elementFromPoint, чтобы получить элемент по координатам
+        var element = document.elementFromPoint(x, y);
+        // Возвращаем элемент в формате ElementReference
+        return element;
+    }
 </script>

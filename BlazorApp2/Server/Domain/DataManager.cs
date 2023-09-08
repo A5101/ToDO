@@ -1,9 +1,4 @@
 ﻿using BlazorApp2.Server.Domain.Repositories.Abstract;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlazorApp2.Server.Domain
 {
@@ -11,9 +6,12 @@ namespace BlazorApp2.Server.Domain
     {
         public IElementRepository ElementRepository { get; set; }
 
-        public DataManager(IElementRepository elementRepository)
+        public ITemplateRepository TemplateRepository { get; set; }
+
+        public DataManager(IElementRepository elementRepository, ITemplateRepository templateRepository)
         {
             this.ElementRepository = elementRepository;
+            this.TemplateRepository = templateRepository;
         }
     }
 }

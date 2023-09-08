@@ -12,6 +12,8 @@ namespace BlazorApp2.Server.Domain
     {
         public DbSet<Element> Elements { get; set; }
 
+        public DbSet<Template> Templates { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseInMemoryDatabase(databaseName: "Db");

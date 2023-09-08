@@ -1,4 +1,4 @@
-﻿<select class="mt-2 " value="" style="@GetStyle()" @onchange="UpdateValue">
+﻿@* <select class="mt-2 " value="" style="@GetStyle()" @onchange="UpdateValue">
     @foreach (var option in Element.GetOptions())
     {
         <option value="@option.Key">@option.Value</option>
@@ -33,3 +33,4 @@
         return res;
     }
 }
+ *@

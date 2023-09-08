@@ -1,4 +1,4 @@
-﻿<input class="ms-2" type="text" id="@Element.Id" value="@Element.GetProperties()["Text"]" style=@GetStyle(); @oninput="UpdateValue" />
+﻿@* <input class="ms-2" type="text" id="@Element.Id" value="@Element.GetProperties()["Text"]" style=@GetStyle(); @oninput="UpdateValue" />
 
 @code {
     [Parameter]
@@ -24,3 +24,4 @@
         return res;
     }
 }
+ *@

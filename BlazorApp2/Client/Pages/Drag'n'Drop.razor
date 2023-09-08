@@ -5,74 +5,37 @@
 @page "/drag"
 @inject HttpClient client
 @inject IJSRuntime jsRuntime
-@inject NavigationManager uriHelper;
+
 
 <button class="btn bg-primary mb-2" @onclick="Modify">@(CanModify ? "Сохранить" : "Редактировать")</button>
 
-<div class="dropArea col-lg-12" @ondrop=Drop ondragover="event.preventDefault()" ondragenter="event.preventDefault()">
+<div class="dropArea col-lg-12" style="user-select: none;" @ondrop=Drop @onmouseup="(e) => ImageUp(e)" ondragover="event.preventDefault()" ondragenter="event.preventDefault()">
+    <h1>Конструктор</h1>
     <div class="border" style="height:50rem !important;">
         <h2 class="ms-2 mt-2 mb-2">Drag&Drop - Зона</h2>
-        <select class="form-select" @onchange="ChangeBtnCollor">
-            <option value="blue">Зеленная кнопка</option>
-            <option value="red">Красная кнопка</option>
-        </select>
-
-        <h3 class="mb-2 mt-2">Button color is @btnCollor</h3>
-        @if (btnCollor == "green")
-        {
-            <button class="btn btn-success" name="greenBtn">Зеленная кнопка</button>
-        }
-        else
-        {
-            <button class="btn btn-danger" name="redBtn">Красная кнопка</button>
-        }
-
-
-        <div style="margin-top: 1rem;">
-
-            <label for="firstComboBox">Select an option in the first ComboBox:</label>
-            <select id="firstComboBox" @bind="selectedFirstOption">
-                <option value="">Select an option</option>
-                <option value="option1">Option 1</option>
-                <option value="option2">Option 2</option>
-            </select>
-        </div>
-
-        <div style="margin-top: 1rem;">
-
-            <label for="secondComboBox">Values in the second ComboBox:</label>
-            <select id="secondComboBox">
-                @foreach (var option in GetSecondComboBoxOptions(selectedFirstOption))
-                {
-                    <option value="@option">@option</option>
-                }
-            </select>
-        </div>
 
         @foreach (var item in droppedItems)
         {
             <div class="mt-2">
+
                 @if (item.Type == "TextBox")
                 {
-                    <div class="d-inline-block" @onclick="() => GetProperties(item)">
-                        <TextBox Element="item"></TextBox>
+                    <div class="border border-dark d-inline-block" id="" @onmousedown="(e) => ImageClick(e, item)" style=@($"width:{item.Width}px;height:{item.Height}px; margin-top:{item.MarginTop}px; margin-left:{item.MarginLeft}px;")>
+                        <img draggable="false" src="images/input.jpg">
                     </div>
                 }
                 else if (item.Type == "RadioButton")
                 {
-                    <div class="d-inline-block" @onclick="() => GetProperties(item)">
-                        <RadioButton Element="item"></RadioButton>
-                    </div>
+                    <img width=@item.Width height=@item.Height src="images/radioButton.jpg">
                 }
                 else if (item.Type == "ComboBox")
                 {
-                    <div class="d-inline-block" @onclick="() => GetOptions(item)">
-                        <ComboBox Element="item"></ComboBox>
-                    </div>
+                    <img width=@item.Width height=@item.Height src="images/comboBox.jpg">
                 }
+
                 @if (CanModify)
                 {
-                    <button class="d-inline-block ms-1" @onclick="() => DeleteElement(item)">
+                    <button class="d-inline-block ms-1" @onclick="() => DeleteElement(item)" >
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                             <path d="M4 7l16 0"></path>
@@ -93,131 +56,162 @@
     <div class="element-panel">
         <h3>
             Элементы Управления
-
         </h3>
+
         <ul>
+
             <li>
-                <h5 class="mt-2 mb-2" draggable="true" @ondragstart="@(() => DragStart("TextBox"))">
-                    TextBox
-                </h5>
-                <h5 class="mt-2 mb-2" draggable="true" @ondragstart="@(() => DragStart("RadioButton"))">
-                    RadioButton
-                </h5>
-                <h5 class="mt-2 mb-2" draggable="true" @ondragstart="@(() => DragStart("ComboBox"))">
-                    ComboBox
-                </h5>
+                <div class="mt-2 mb-2" draggable="true" @ondragstart="@(() => DragStart("TextBox"))">
+                    <img width="100" height="50" src="images/input.jpg">
+                </div>
             </li>
+
+            <li>
+                <div class="mt-2 mb-2" draggable="true" @ondragstart="@(() => DragStart("RadioButton"))">
+                    <img width="100" height="50" src="images/radioButton.jpg">
+                </div>
+            </li>
+
+            <li>
+                <div class="mt-2 mb-2" draggable="true" @ondragstart="@(() => DragStart("ComboBox"))">
+                    <img width="100" height="50" src="images/comboBox.jpg">
+                </div>
+            </li>
+
         </ul>
+
     </div>
-    @if (selectedElement != null)
+
+    @*  @if (selectedElement != null)
     {
-        <div class="properties-panel">
-            <div class="table-responsive">
-                <table class="table card-table table-vcenter" style="margin-bottom:0rem !important">
-                    <thead>
-                        <tr>
-                            <th class="w-1 pe-0">Property</th>
-                            <th class="w-1">Value</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (selectedElement.Type == "TextBox")
-                        {
-                            @foreach (var property in Properties)
-                            {
-                                @if (property.Key != "Checked")
-                                {
-                                    @if (property.Key != "Mask")
-                                    {
-                                        <tr>
-                                            <td>@property.Key</td>
-                                            <td><input @bind=@Properties[property.Key] @onblur="() => UpdateElement(selectedElement)" /></td>
-                                        </tr>
-                                    }
-                                    else
-                                    {
-                                        <tr>
-                                            <td>@property.Key</td>
-                                            <td><input @bind=@Properties[property.Key] @onblur="() => UpdateElementWithMask(selectedElement)" /></td>
-                                        </tr>
-                                    }
-                                }
-                            }
-                        }
-                        @if (selectedElement.Type == "RadioButton")
-                        {
-                            <tr>
-                                <td>Checked</td>
-                                <td><input @bind=@Properties["Checked"] @onblur="() => UpdateElement(selectedElement)" /></td>
-                            </tr>
-                        }
-                        @if (selectedElement.Type == "ComboBox")
-                        {
-                            @foreach (var option in ComboBoxOptions)
-                            {
-                                <tr>
-                                    <td class="text-truncate">@option.Key</td>
-                                    <td>@option.Value</td>
-                                </tr>
-                            }
-                            <tr>
-                                <td class="text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Ключ будет сгенерирован автоматически">Key</td>
-                                <td><input @bind=@newOption /></td>
-                            </tr>
-
-                            <button class="btn bg-success text-white mt-2 d-flex justify-content-end" @onclick="() => UpdateElementOptions(selectedElement)">Добавить option</button>
-                        }
-
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <div class="properties-panel">
+    <div class="table-responsive">
+    <table class="table card-table table-vcenter" style="margin-bottom:0rem !important">
+    <thead>
+    <tr>
+    <th class="w-1 pe-0">Property</th>
+    <th class="w-1">Value</th>
+    </tr>
+    </thead>
+    <tbody>
+    @if (selectedElement.Type == "TextBox")
+    {
+    @foreach (var property in Properties)
+    {
+    @if (property.Key != "Checked")
+    {
+    @if (property.Key != "Mask")
+    {
+    <tr>
+    <td>@property.Key</td>
+    <td><input @bind=@Properties[property.Key] @onblur="() => UpdateElement(selectedElement)" /></td>
+    </tr>
     }
+    else
+    {
+    <tr>
+    <td>@property.Key</td>
+    <td><input @bind=@Properties[property.Key] @onblur="() => UpdateElementWithMask(selectedElement)" /></td>
+    </tr>
+    }
+    }
+    }
+    }
+    @if (selectedElement.Type == "RadioButton")
+    {
+    <tr>
+    <td>Checked</td>
+    <td><input @bind=@Properties["Checked"] @onblur="() => UpdateElement(selectedElement)" /></td>
+    </tr>
+    }
+    @if (selectedElement.Type == "ComboBox")
+    {
+    @foreach (var option in ComboBoxOptions)
+    {
+    <tr>
+    <td class="text-truncate">@option.Key</td>
+    <td>@option.Value</td>
+    </tr>
+    }
+    <tr>
+    <td class="text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Ключ будет сгенерирован автоматически">Key</td>
+    <td><input @bind=@newOption /></td>
+    </tr>
+
+    <button class="btn bg-success text-white mt-2 d-flex justify-content-end" @onclick="() => UpdateElementOptions(selectedElement)">Добавить option</button>
+    }
+
+    </tbody>
+    </table>
+    </div>
+    </div>
+    } *@
 
 
 
 </div>
 
 @code {
-    private List<Element> droppedItems = new List<Element>();
+    private List<Template> droppedItems = new List<Template>();
 
     private string currentDragType = "";
 
-    private string btnCollor = "green";
+    private Template currentResizebleTemplate = null;
 
-    private string newOption = "";
+    private Template currentDraggbleTemplate = null;
 
     private bool CanModify = false;
 
     public Element selectedElement { get; set; }
 
-    private Dictionary<string, string> Properties;
-
-    private Dictionary<string, string> ComboBoxOptions = new Dictionary<string, string>();
-
-
     private bool isDraggingFromToolbox = false;
 
-    private void ChangeBtnCollor()
-    {
-        if (btnCollor == "green")
-            btnCollor = "red";
-        else
-            btnCollor = "green";
-    }
-
-    private async void SetMask(Guid id, string mask)
-    {
-        await jsRuntime.InvokeVoidAsync("applyMask", id, mask);
-    }
+    private int startX = 0;
+    private int startY = 0;
 
     private async Task Drop()
     {
         if (isDraggingFromToolbox)
         {
-            await client.PostAsJsonAsync<Element>("api/Element/", new Element() { Type = currentDragType, Id = Guid.NewGuid() });
+            var template = new Template() { Type = currentDragType, Id = Guid.NewGuid(), Width = 100, Height = 50 };
+            await client.PostAsJsonAsync<Template>("api/Template", template);
             isDraggingFromToolbox = false;
             Refresh();
+        }
+    }
+
+    private async Task ImageClick(MouseEventArgs e, Template template)
+    {
+        if (e.OffsetX <= template.Width * 1.2 && e.OffsetX >= template.Width * 0.8  && e.OffsetY <= template.Height * 1.2 && e.OffsetY >= template.Height * 0.8)
+        {
+            startX = (int)e.ClientX;
+            startY = (int)e.ClientY;
+            currentResizebleTemplate = template;
+        }
+        else
+        if (e.OffsetX <= template.Width * 0.7 && e.OffsetX >= template.Width * 0.3 && e.OffsetY <= template.Height * 0.7 && e.OffsetY >= template.Height * 0.3)
+        {
+            startX = (int)e.ClientX;
+            startY = (int)e.ClientY;
+            currentDraggbleTemplate = template;
+        }
+    }
+
+    private void ImageUp(MouseEventArgs e)
+    {
+        if (currentResizebleTemplate != null)
+        {
+            currentResizebleTemplate.Width += (int)e.ClientX - startX;
+            currentResizebleTemplate.Height += (int)e.ClientY - startY;
+            UpdateElement(currentResizebleTemplate);
+            currentResizebleTemplate = null;
+        }
+        if (currentDraggbleTemplate != null)
+        {
+            currentDraggbleTemplate.MarginLeft += (int)e.ClientX - startX;
+            currentDraggbleTemplate.MarginTop += (int)e.ClientY - startY;
+            UpdateElement(currentDraggbleTemplate);
+            currentDraggbleTemplate = null;
         }
     }
 
@@ -228,44 +222,21 @@
 
     private async Task Refresh()
     {
-        droppedItems = await client.GetFromJsonAsync<List<Element>>("api/Element");
+        droppedItems = await client.GetFromJsonAsync<List<Template>>("api/Template");
         StateHasChanged();
         //Thread.Sleep(500);
-        foreach (var el in droppedItems)
-        {
-            if (el.Type == "TextBox")
-            {
-                SetMask(el.Id, el.GetProperties()["Mask"]);
-            }
-        }
     }
 
-    private async Task UpdateElement(Element element)
+    private async Task UpdateElement(Template element)
     {
-        element.SetProperties(Properties);
-        await client.PutAsJsonAsync($"api/Element", element);
+        //element.SetProperties(Properties);
+        await client.PutAsJsonAsync($"api/Template", element);
         await Refresh();
     }
 
-    private async Task UpdateElementWithMask(Element element)
+    private async Task DeleteElement(Template element)
     {
-        element.SetProperties(Properties);
-        await client.PutAsJsonAsync($"api/Element", element);
-        await Refresh();
-        uriHelper.NavigateTo(uriHelper.Uri, forceLoad: true);
-    }
-
-    private async Task UpdateElementOptions(Element element)
-    {
-        ComboBoxOptions.Add(Guid.NewGuid().ToString(), newOption);
-        element.SetOptions(ComboBoxOptions);
-        await client.PutAsJsonAsync($"api/Element", element);
-        await Refresh();
-    }
-
-    private async Task DeleteElement(Element element)
-    {
-        await client.DeleteAsync("api/Element/?id=" + element.Id);
+        await client.DeleteAsync("api/Template/?id=" + element.Id);
         await Refresh();
     }
 
@@ -276,117 +247,70 @@
 
     }
 
-    private void GetProperties(Element item)
-    {
-        if (CanModify)
-        {
-            selectedElement = item;
-            Properties = item.GetProperties();
-        }
-    }
-    private void GetOptions(Element item)
-    {
-        if (CanModify)
-        {
-            selectedElement = item;
-            ComboBoxOptions = item.GetOptions();
-        }
-    }
-
     private void Modify()
     {
         CanModify = !CanModify;
         selectedElement = null;
     }
-
-    private void Reset()
-    {
-        selectedElement = null;
-    }
-    private string selectedFirstOption = "";
-
-    private IEnumerable<string> GetSecondComboBoxOptions(string firstOption)
-    {
-        if (firstOption == "option1")
-        {
-            return new List<string>
-            {
-                "Option A",
-                "Option B",
-                "Option C"
-            };
-        }
-        else if (firstOption == "option2")
-        {
-            return new List<string>
-            {
-                "Option X",
-                "Option Y",
-                "Option Z"
-            };
-        }
-
-        return Enumerable.Empty<string>();
-    }
 }
 
 <style>
-    .toolbox {
-        position: fixed;
-        top: 0;
-        right: 0;
-        width: 25%; /* Adjust the width as needed */
-        height: 100vh;
-        background-color: #f8f9fa; /* Set your desired background color */
-        border-left: 1px solid #ccc;
-        display: flex;
-        flex-direction: column;
-        overflow-y: auto;
-        z-index: 1000;
-        transition: width 0.3s;
-    }
+.toolbox {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 25%; /* Adjust the width as needed */
+    height: 100vh;
+    background-color: #f8f9fa; /* Set your desired background color */
+    border-left: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    z-index: 1000;
+    transition: width 0.3s;
+}
 
-    .element-panel {
-        padding: 1rem;
-        border-bottom: 1px solid #ccc;
-    }
+.element-panel {
+    padding: 1rem;
+    border-bottom: 1px solid #ccc;
+}
 
-    .properties-panel {
-        padding: 1rem;
-        flex-grow: 1;
-        overflow-y: auto;
-    }
+.properties-panel {
+    padding: 1rem;
+    flex-grow: 1;
+    overflow-y: auto;
+}
 
-    /* Adjust styles for your headings, inputs, and other elements as needed */
-    h3, h5 {
-        margin: 0;
-        padding: 0;
-    }
+/* Adjust styles for your headings, inputs, and other elements as needed */
+h3, h5 {
+    margin: 0;
+    padding: 0;
+}
 
-    h5 {
-        cursor: grab;
-    }
+h5 {
+    cursor: grab;
+}
 
-    table {
-        width: 100%;
-        margin-bottom: 0 !important;
-    }
+table {
+    width: 100%;
+    margin-bottom: 0 !important;
+}
 
-    th, td {
-        padding: 0.5rem;
-        border-bottom: 1px solid #ccc;
-    }
+th, td {
+    padding: 0.5rem;
+    border-bottom: 1px solid #ccc;
+}
 
-    input {
-        width: 100%;
-        padding: 0.25rem;
-    }
+input {
+    width: 100%;
+    padding: 0.25rem;
+}
 
-    .bg-green {
-        background-color: green;
-    }
+.bg-green {
+    background-color: green;
+}
 
-    .bg-red {
-        background-color: red;
-    }
+.bg-red {
+    background-color: red;
+}
 </style>
