@@ -13,42 +13,43 @@
     <h1>Конструктор</h1>
     <div class="border" style="height:50rem !important;">
         <h2 class="ms-2 mt-2 mb-2">Drag&Drop - Зона</h2>
+        <div style=" position:absolute">
+            @foreach (var item in droppedItems)
+            {
+                <div class="mt-2">
 
-        @foreach (var item in droppedItems)
-        {
-            <div class="mt-2">
+                    @if (item.Type == "TextBox")
+                    {
+                        <div class="border border-dark d-inline-block" id="" @onmousedown="(e) => ImageClick(e, item)" style=@($"position:absolute;width:{item.Width}px;height:{item.Height}px; top:{item.MarginTop}px; left:{item.MarginLeft}px;")>
+                            <img draggable="false" src="images/input.jpg">
+                        </div>
+                    }
+                    else if (item.Type == "RadioButton")
+                    {
+                        <img width=@item.Width height=@item.Height src="images/radioButton.jpg">
+                    }
+                    else if (item.Type == "ComboBox")
+                    {
+                        <img width=@item.Width height=@item.Height src="images/comboBox.jpg">
+                    }
 
-                @if (item.Type == "TextBox")
-                {
-                    <div class="border border-dark d-inline-block" id="" @onmousedown="(e) => ImageClick(e, item)" style=@($"width:{item.Width}px;height:{item.Height}px; margin-top:{item.MarginTop}px; margin-left:{item.MarginLeft}px;")>
-                        <img draggable="false" src="images/input.jpg">
-                    </div>
-                }
-                else if (item.Type == "RadioButton")
-                {
-                    <img width=@item.Width height=@item.Height src="images/radioButton.jpg">
-                }
-                else if (item.Type == "ComboBox")
-                {
-                    <img width=@item.Width height=@item.Height src="images/comboBox.jpg">
-                }
-
-                @if (CanModify)
-                {
-                    <button class="d-inline-block ms-1" @onclick="() => DeleteElement(item)" >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M4 7l16 0"></path>
-                            <path d="M10 11l0 6"></path>
-                            <path d="M14 11l0 6"></path>
-                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
-                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
-                        </svg>
-                    </button>
-                }
-            </div>
-            <br />
-        }
+                    @if (CanModify)
+                    {
+                        <button class="d-inline-block" style=@($"position:absolute; top:{item.MarginTop}px; left:{item.MarginLeft}px;") @onclick="() => DeleteElement(item)">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M4 7l16 0"></path>
+                                <path d="M10 11l0 6"></path>
+                                <path d="M14 11l0 6"></path>
+                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                            </svg>
+                        </button>
+                    }
+                </div>
+                <br />
+            }
+        </div>
     </div>
 </div>
 
@@ -182,7 +183,7 @@
 
     private async Task ImageClick(MouseEventArgs e, Template template)
     {
-        if (e.OffsetX <= template.Width * 1.2 && e.OffsetX >= template.Width * 0.8  && e.OffsetY <= template.Height * 1.2 && e.OffsetY >= template.Height * 0.8)
+        if (e.OffsetX <= template.Width * 1.2 && e.OffsetX >= template.Width * 0.8 && e.OffsetY <= template.Height * 1.2 && e.OffsetY >= template.Height * 0.8)
         {
             startX = (int)e.ClientX;
             startY = (int)e.ClientY;
@@ -255,62 +256,62 @@
 }
 
 <style>
-.toolbox {
-    position: fixed;
-    top: 0;
-    right: 0;
-    width: 25%; /* Adjust the width as needed */
-    height: 100vh;
-    background-color: #f8f9fa; /* Set your desired background color */
-    border-left: 1px solid #ccc;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    z-index: 1000;
-    transition: width 0.3s;
-}
+    .toolbox {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 25%; /* Adjust the width as needed */
+        height: 100vh;
+        background-color: #f8f9fa; /* Set your desired background color */
+        border-left: 1px solid #ccc;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        z-index: 1000;
+        transition: width 0.3s;
+    }
 
-.element-panel {
-    padding: 1rem;
-    border-bottom: 1px solid #ccc;
-}
+    .element-panel {
+        padding: 1rem;
+        border-bottom: 1px solid #ccc;
+    }
 
-.properties-panel {
-    padding: 1rem;
-    flex-grow: 1;
-    overflow-y: auto;
-}
+    .properties-panel {
+        padding: 1rem;
+        flex-grow: 1;
+        overflow-y: auto;
+    }
 
-/* Adjust styles for your headings, inputs, and other elements as needed */
-h3, h5 {
-    margin: 0;
-    padding: 0;
-}
+    /* Adjust styles for your headings, inputs, and other elements as needed */
+    h3, h5 {
+        margin: 0;
+        padding: 0;
+    }
 
-h5 {
-    cursor: grab;
-}
+    h5 {
+        cursor: grab;
+    }
 
-table {
-    width: 100%;
-    margin-bottom: 0 !important;
-}
+    table {
+        width: 100%;
+        margin-bottom: 0 !important;
+    }
 
-th, td {
-    padding: 0.5rem;
-    border-bottom: 1px solid #ccc;
-}
+    th, td {
+        padding: 0.5rem;
+        border-bottom: 1px solid #ccc;
+    }
 
-input {
-    width: 100%;
-    padding: 0.25rem;
-}
+    input {
+        width: 100%;
+        padding: 0.25rem;
+    }
 
-.bg-green {
-    background-color: green;
-}
+    .bg-green {
+        background-color: green;
+    }
 
-.bg-red {
-    background-color: red;
-}
+    .bg-red {
+        background-color: red;
+    }
 </style>
