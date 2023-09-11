@@ -29,7 +29,7 @@ public class FormController : ControllerBase
     [HttpGet]
     public IActionResult GetForms()
     {
-        var forms = dataManager.FormRepository.GetForms();
+        var forms = dataManager.FormRepository.GetFormsTemplates();
         return Ok(forms);
     }
 

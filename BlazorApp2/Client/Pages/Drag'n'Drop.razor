@@ -8,11 +8,11 @@
 
 <button class="btn bg-primary mb-2" @onclick="Modify">@(CanModify ? "Сохранить" : "Редактировать")</button>
 
-<div class="dropArea col-lg-12" style="user-select: none;" @ondrop=Drop @onmouseup="(e) => ImageUp(e)" ondragover="event.preventDefault()" ondragenter="event.preventDefault()">
+<div class="dropArea " style="user-select: none;" @ondrop="(e) => Drop(e)" @onmousemove="(e) => ImageMove(e)" @onmouseup=ImageUp ondragover="event.preventDefault()" ondragenter="event.preventDefault()">
     <h1>Конструктор</h1>
-    <div class="border" style="height:50rem !important;">
-        <h2 class="ms-2 mt-2 mb-2">Drag&Drop - Зона</h2>
-        <div style="position:absolute">
+    <h2 class="ms-2 mt-2 mb-2">Drag&Drop - Зона</h2>
+    <div class="border border-dark" style="width:750px; height:750px;position:absolute">
+        <div style="">
             @foreach (var item in droppedItems)
             {
                 <div class="mt-2">
@@ -110,11 +110,11 @@
     private int startX = 0;
     private int startY = 0;
 
-    private async Task Drop()
+    private async Task Drop(MouseEventArgs e)
     {
         if (isDraggingFromToolbox)
         {
-            var template = new Template() { Type = currentDragType, Id = Guid.NewGuid(), Width = 100, Height = 50, IdForm = new Guid(id) };
+            var template = new Template() { Type = currentDragType, Id = Guid.NewGuid(), Width = 100, Height = 50, IdForm = new Guid(id), MarginLeft = (int)e.OffsetX, MarginTop=(int)e.OffsetY };
             await client.PostAsJsonAsync<Template>("api/Template", template);
             Refresh();
             isDraggingFromToolbox = false;
@@ -132,7 +132,7 @@
         else if (e.OffsetX <= template.Width * 0.7 && e.OffsetX >= template.Width * 0.3 && e.OffsetY <= template.Height * 0.7 && e.OffsetY >= template.Height * 0.3)
         {
             startX = (int)e.ClientX;
-            startY = (int)e.ClientY;
+             startY = (int)e.ClientY;
             currentDraggbleTemplate = template;
         }
     }
@@ -148,19 +148,34 @@
         StateHasChanged();
         //Thread.Sleep(500);
     }
-    private void ImageUp(MouseEventArgs e)
+    private void ImageMove(MouseEventArgs e)
     {
         if (currentResizebleTemplate != null)
         {
             currentResizebleTemplate.Width += (int)e.ClientX - startX;
             currentResizebleTemplate.Height += (int)e.ClientY - startY;
-            UpdateElement(currentResizebleTemplate);
-            currentResizebleTemplate = null;
+            startX = (int)e.ClientX;
+            startY = (int)e.ClientY;
         }
         if (currentDraggbleTemplate != null)
         {
             currentDraggbleTemplate.MarginLeft += (int)e.ClientX - startX;
             currentDraggbleTemplate.MarginTop += (int)e.ClientY - startY;
+            startX = (int)e.ClientX;
+            startY = (int)e.ClientY;
+        }
+        
+    }
+
+    private void ImageUp()
+    {
+        if (currentResizebleTemplate != null)
+        {
+            UpdateElement(currentResizebleTemplate);
+            currentResizebleTemplate = null;
+        }
+        if (currentDraggbleTemplate != null)
+        {
             UpdateElement(currentDraggbleTemplate);
             currentDraggbleTemplate = null;
         }

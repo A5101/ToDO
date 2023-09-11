@@ -12,14 +12,14 @@ else
 {
     @foreach (var form in list)
     {
-        <a href=@($"drag/{form.Id}")>@form.Id</a>
-        <br>
+        <a href=@($"drag/{form.Form.Id}")>@form.Form.Id</a>
+        <br />
     }
 }
 
 
 @code {
-    private List<Form> list = new List<Form>();
+    private List<FormTemplateViewModel> list = new List<FormTemplateViewModel>();
 
     protected async override Task OnInitializedAsync()
     {
@@ -28,7 +28,7 @@ else
 
     private async Task Refresh()
     {
-        list = await client.GetFromJsonAsync<List<Form>>("api/Form");
+        list = await client.GetFromJsonAsync<List<FormTemplateViewModel>>("api/Form");
         StateHasChanged();
     }
 
@@ -38,5 +38,15 @@ else
         client.PutAsJsonAsync<Form>("api/Form", form);
         Refresh();
     }
-
 }
+
+<style>
+    .line {
+        color: #000000 !important;
+        height: 1px !important;
+        margin-left: 0rem;
+        margin-right: 0rem;
+        margin-top: 0rem;
+        margin-bottom: 0rem;
+    }
+</style>
