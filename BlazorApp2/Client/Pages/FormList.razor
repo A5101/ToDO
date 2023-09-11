@@ -1,0 +1,42 @@
+﻿@page "/forms"
+@using BlazorApp2.Client.Pages
+@inject HttpClient client
+
+<h3>FormList</h3>
+<button class="btn btn-primary" @onclick=CreateForm> Create new form</button>
+@if (!list.Any())
+{
+    <h3>Форм еще нет</h3>
+}
+else
+{
+    @foreach (var form in list)
+    {
+        <a href=@($"drag/{form.Id}")>@form.Id</a>
+        <br>
+    }
+}
+
+
+@code {
+    private List<Form> list = new List<Form>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        await Refresh();
+    }
+
+    private async Task Refresh()
+    {
+        list = await client.GetFromJsonAsync<List<Form>>("api/Form");
+        StateHasChanged();
+    }
+
+    private void CreateForm()
+    {
+        var form = new Form() { Id = Guid.NewGuid() };
+        client.PutAsJsonAsync<Form>("api/Form", form);
+        Refresh();
+    }
+
+}

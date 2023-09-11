@@ -9,7 +9,7 @@ namespace BlazorApp2.Server.Domain.Repositories.Abstract
 
         public void Delete(Guid id);
 
-        public List<Template> Get();
+        public List<Template> Get(Guid id);
 
         public void Update(Template element);
     }

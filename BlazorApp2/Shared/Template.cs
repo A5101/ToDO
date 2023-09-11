@@ -25,6 +25,8 @@ namespace BlazorApp2.Shared
         public Guid TargetTo { get; set; }
 
         public Guid Id { get; set; }
- 
+
+        public Guid IdForm { get; set; }
+
     }
 }

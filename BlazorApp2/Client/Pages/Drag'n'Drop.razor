@@ -1,11 +1,10 @@
-﻿@using BlazorApp2.Client.Pages
+﻿@page "/drag/{id}"
+@using BlazorApp2.Client.Pages
 @using Microsoft.AspNetCore.Components.Rendering
 @using System.Text.Json
 
-@page "/drag"
 @inject HttpClient client
 @inject IJSRuntime jsRuntime
-
 
 <button class="btn bg-primary mb-2" @onclick="Modify">@(CanModify ? "Сохранить" : "Редактировать")</button>
 
@@ -13,7 +12,7 @@
     <h1>Конструктор</h1>
     <div class="border" style="height:50rem !important;">
         <h2 class="ms-2 mt-2 mb-2">Drag&Drop - Зона</h2>
-        <div style=" position:absolute">
+        <div style="position:absolute">
             @foreach (var item in droppedItems)
             {
                 <div class="mt-2">
@@ -53,6 +52,7 @@
     </div>
 </div>
 
+
 <div class="toolbox border" style=@(CanModify ? "display:block" : "display:none")>
     <div class="element-panel">
         <h3>
@@ -82,77 +82,17 @@
         </ul>
 
     </div>
-
-    @*  @if (selectedElement != null)
-    {
-    <div class="properties-panel">
-    <div class="table-responsive">
-    <table class="table card-table table-vcenter" style="margin-bottom:0rem !important">
-    <thead>
-    <tr>
-    <th class="w-1 pe-0">Property</th>
-    <th class="w-1">Value</th>
-    </tr>
-    </thead>
-    <tbody>
-    @if (selectedElement.Type == "TextBox")
-    {
-    @foreach (var property in Properties)
-    {
-    @if (property.Key != "Checked")
-    {
-    @if (property.Key != "Mask")
-    {
-    <tr>
-    <td>@property.Key</td>
-    <td><input @bind=@Properties[property.Key] @onblur="() => UpdateElement(selectedElement)" /></td>
-    </tr>
-    }
-    else
-    {
-    <tr>
-    <td>@property.Key</td>
-    <td><input @bind=@Properties[property.Key] @onblur="() => UpdateElementWithMask(selectedElement)" /></td>
-    </tr>
-    }
-    }
-    }
-    }
-    @if (selectedElement.Type == "RadioButton")
-    {
-    <tr>
-    <td>Checked</td>
-    <td><input @bind=@Properties["Checked"] @onblur="() => UpdateElement(selectedElement)" /></td>
-    </tr>
-    }
-    @if (selectedElement.Type == "ComboBox")
-    {
-    @foreach (var option in ComboBoxOptions)
-    {
-    <tr>
-    <td class="text-truncate">@option.Key</td>
-    <td>@option.Value</td>
-    </tr>
-    }
-    <tr>
-    <td class="text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Ключ будет сгенерирован автоматически">Key</td>
-    <td><input @bind=@newOption /></td>
-    </tr>
-
-    <button class="btn bg-success text-white mt-2 d-flex justify-content-end" @onclick="() => UpdateElementOptions(selectedElement)">Добавить option</button>
-    }
-
-    </tbody>
-    </table>
-    </div>
-    </div>
-    } *@
-
-
-
 </div>
 
+
 @code {
+    [Parameter]
+    public string id
+    {
+        get;
+        set;
+    } = "";
+
     private List<Template> droppedItems = new List<Template>();
 
     private string currentDragType = "";
@@ -174,10 +114,10 @@
     {
         if (isDraggingFromToolbox)
         {
-            var template = new Template() { Type = currentDragType, Id = Guid.NewGuid(), Width = 100, Height = 50 };
+            var template = new Template() { Type = currentDragType, Id = Guid.NewGuid(), Width = 100, Height = 50, IdForm = new Guid(id) };
             await client.PostAsJsonAsync<Template>("api/Template", template);
-            isDraggingFromToolbox = false;
             Refresh();
+            isDraggingFromToolbox = false;
         }
     }
 
@@ -189,8 +129,7 @@
             startY = (int)e.ClientY;
             currentResizebleTemplate = template;
         }
-        else
-        if (e.OffsetX <= template.Width * 0.7 && e.OffsetX >= template.Width * 0.3 && e.OffsetY <= template.Height * 0.7 && e.OffsetY >= template.Height * 0.3)
+        else if (e.OffsetX <= template.Width * 0.7 && e.OffsetX >= template.Width * 0.3 && e.OffsetY <= template.Height * 0.7 && e.OffsetY >= template.Height * 0.3)
         {
             startX = (int)e.ClientX;
             startY = (int)e.ClientY;
@@ -198,6 +137,17 @@
         }
     }
 
+    protected override async Task OnInitializedAsync()
+    {
+        await Refresh();
+    }
+
+    private async Task Refresh()
+    {
+        droppedItems = await client.GetFromJsonAsync<List<Template>>($"api/Template?id={id}");
+        StateHasChanged();
+        //Thread.Sleep(500);
+    }
     private void ImageUp(MouseEventArgs e)
     {
         if (currentResizebleTemplate != null)
@@ -216,21 +166,20 @@
         }
     }
 
-    protected override async Task OnInitializedAsync()
-    {
-        await Refresh();
-    }
-
-    private async Task Refresh()
-    {
-        droppedItems = await client.GetFromJsonAsync<List<Template>>("api/Template");
-        StateHasChanged();
-        //Thread.Sleep(500);
-    }
+    // private IEnumerable<Template> GetCurrentFormItems()
+    // {
+    //     if (formTemplates.ContainsKey(selectedFormId))
+    //     {
+    //         return formTemplates[selectedFormId];
+    //     }
+    //     else
+    //     {
+    //         return Enumerable.Empty<Template>();
+    //     }
+    // }
 
     private async Task UpdateElement(Template element)
     {
-        //element.SetProperties(Properties);
         await client.PutAsJsonAsync($"api/Template", element);
         await Refresh();
     }
@@ -245,7 +194,6 @@
     {
         currentDragType = item;
         isDraggingFromToolbox = true;
-
     }
 
     private void Modify()
@@ -253,6 +201,31 @@
         CanModify = !CanModify;
         selectedElement = null;
     }
+
+    // private List<Form> forms = new List<Form>();
+    // private Guid selectedFormId = Guid.Empty;
+    // private Dictionary<Guid, List<Template>> formTemplates = new Dictionary<Guid, List<Template>>();
+
+    // private void CreateNewForm()
+    // {
+    //     var newForm = new Form { Id = Guid.NewGuid(), Name = "Новая форма", Elements = new List<Element>(), Templates = new List<Template>() };
+    //     forms.Add(newForm);
+    //     selectedFormId = newForm.Id;
+
+    //     // Ensure an empty list exists for the new form in formTemplates
+    //     if (!formTemplates.ContainsKey(selectedFormId))
+    //     {
+    //         formTemplates[selectedFormId] = new List<Template>();
+    //     }
+
+    //     droppedItems = new List<Template>();
+    // }
+
+    // private void SwitchForm(Guid formId)
+    // {
+    //     selectedFormId = formId;
+    //     droppedItems.Clear();
+    // }
 }
 
 <style>
@@ -260,9 +233,9 @@
         position: fixed;
         top: 0;
         right: 0;
-        width: 25%; /* Adjust the width as needed */
+        width: 25%;
         height: 100vh;
-        background-color: #f8f9fa; /* Set your desired background color */
+        background-color: #f8f9fa;
         border-left: 1px solid #ccc;
         display: flex;
         flex-direction: column;
@@ -282,7 +255,6 @@
         overflow-y: auto;
     }
 
-    /* Adjust styles for your headings, inputs, and other elements as needed */
     h3, h5 {
         margin: 0;
         padding: 0;

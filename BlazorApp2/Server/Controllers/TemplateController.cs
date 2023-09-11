@@ -16,9 +16,9 @@ namespace BlazorApp2.Server.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public IActionResult Get(Guid id)
         {
-            var toDOs = dataManager.TemplateRepository.Get();
+            var toDOs = dataManager.TemplateRepository.Get(id);
             return Ok(toDOs);
         }
 

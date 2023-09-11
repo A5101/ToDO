@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BlazorApp2.Server.Domain.Repositories.EntityFramework
 {
-    public class EFTemplateRepository:ITemplateRepository
+    public class EFTemplateRepository : ITemplateRepository
     {
         private readonly AppDbContext context;
 
@@ -25,9 +25,9 @@ namespace BlazorApp2.Server.Domain.Repositories.EntityFramework
             context.SaveChanges();
         }
 
-        public List<Template> Get()
+        public List<Template> Get(Guid id)
         {
-            return context.Templates.ToList();
+            return context.Templates.Where(x => x.IdForm == id).ToList();
         }
 
         public void Update(Template element)
