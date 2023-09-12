@@ -13,69 +13,25 @@ public class FormController : ControllerBase
         this.dataManager = dataManager;
     }
 
-    // Добавление новой формы
     [HttpPut]
     public IActionResult CreateForm(Form form)
     {
-        // Добавьте валидацию и обработку ошибок по вашему усмотрению
-
         dataManager.FormRepository.Add(form);
-        
 
-        return Ok(form); // Можете вернуть Id созданной формы или ее данные
+        return Ok(form); 
     }
-
-    // Получение списка форм
+    
     [HttpGet]
     public IActionResult GetForms()
     {
         var forms = dataManager.FormRepository.GetFormsTemplates();
         return Ok(forms);
     }
+    [HttpDelete]
+    public IActionResult DeleteForm(Guid id)
+    {
+         dataManager.FormRepository.Delete(id);
+        return Ok();
+    }
 
-    //// Получение формы по Id
-    //[HttpGet("{id}")]
-    //public IActionResult GetForm(Guid id)
-    //{
-    //    var form = _context.Forms.FirstOrDefault(f => f.Id == id);
-    //    if (form == null)
-    //    {
-    //        return NotFound();
-    //    }
-
-    //    return Ok(form);
-    //}
-
-    //// Обновление формы
-    //[HttpPost("{id}")]
-    //public IActionResult UpdateForm(Guid id, Form updatedForm)
-    //{
-    //    var form = _context.Forms.FirstOrDefault(f => f.Id == id);
-    //    if (form == null)
-    //    {
-    //        return NotFound();
-    //    }
-
-    //    // Обновите свойства формы на основе updatedForm
-
-    //    _context.SaveChanges();
-
-    //    return Ok(form);
-    //}
-
-    //// Удаление формы
-    //[HttpDelete("{id}")]
-    //public IActionResult DeleteForm(Guid id)
-    //{
-    //    var form = _context.Forms.FirstOrDefault(f => f.Id == id);
-    //    if (form == null)
-    //    {
-    //        return NotFound();
-    //    }
-
-    //    _context.Forms.Remove(form);
-    //    _context.SaveChanges();
-
-    //    return NoContent();
-    //}
 }

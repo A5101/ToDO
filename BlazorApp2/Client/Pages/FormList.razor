@@ -3,7 +3,31 @@
 @inject HttpClient client
 
 <h3>FormList</h3>
-<button class="btn btn-primary" @onclick=CreateForm> Create new form</button>
+
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+   Create new Form
+</button>
+
+<div class="modal" id="exampleModal" tabindex="-1">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-control" name="example-text-input" placeholder="Your report name" @bind="newFormName" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-bs-dismiss="modal" @onclick="CreateForm" disabled="@string.IsNullOrWhiteSpace(newFormName)">Сохранить</button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
 @if (!list.Any())
 {
     <h3>Форм еще нет</h3>
@@ -12,15 +36,72 @@ else
 {
     @foreach (var form in list)
     {
-        <a href=@($"drag/{form.Form.Id}")>@form.Form.Id</a>
-        <br />
+        <a href=@($"drag/{form.Form.Id}")> <br />@form.Form.Name</a>
+        <button  @onclick="() => DeleteForm(form.Form)">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="12" height="12" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M4 7l16 0"></path>
+                <path d="M10 11l0 6"></path>
+                <path d="M14 11l0 6"></path>
+                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+            </svg>
+        </button>
+        <div class="border border-dark" style="width:250px; height:250px;">
+            <div style="">
+                @foreach (var item in form.Templates)
+                {
+                    <div class="mt-2">
+
+                        @if (item.Type == "TextBox")
+                        {
+                            <div class=" d-inline-block" id=""  style=@($"position:absolute;width:{item.Width/3}px;height:{item.Height/3}px; top:{item.MarginTop/3}px; left:{item.MarginLeft/3}px;")>
+                                <img draggable="false" src="images/input.jpg">
+                            </div>
+                        }
+                        @* else if (item.Type == "RadioButton")
+                        {
+                            <img width=@item.Width height=@item.Height src="images/radioButton.jpg">
+                        }
+                        else if (item.Type == "ComboBox")
+                        {
+                            <img width=@item.Width height=@item.Height src="images/comboBox.jpg">
+                        } *@
+
+                        
+                    </div>
+                    <br />
+                }
+            </div>
+        </div>
     }
 }
-
 
 @code {
     private List<FormTemplateViewModel> list = new List<FormTemplateViewModel>();
 
+    private string newFormName = "";
+
+
+
+    private async Task CreateForm()
+    {
+        if (!string.IsNullOrEmpty(newFormName))
+        {
+            var form = new Form() { Id = Guid.NewGuid(), Name = newFormName };
+            await client.PutAsJsonAsync<Form>("api/Form", form);
+            newFormName = ""; 
+
+            await Refresh();
+        }
+    }
+    private async Task DeleteForm(Form form)
+    {
+        await client.DeleteAsync($"api/Form?id={form.Id}");
+        Refresh();
+    }
+
+  
     protected async override Task OnInitializedAsync()
     {
         await Refresh();
@@ -30,13 +111,6 @@ else
     {
         list = await client.GetFromJsonAsync<List<FormTemplateViewModel>>("api/Form");
         StateHasChanged();
-    }
-
-    private void CreateForm()
-    {
-        var form = new Form() { Id = Guid.NewGuid() };
-        client.PutAsJsonAsync<Form>("api/Form", form);
-        Refresh();
     }
 }
 
@@ -49,4 +123,57 @@ else
         margin-top: 0rem;
         margin-bottom: 0rem;
     }
+
+    .modalStyle {
+        width: 400px;
+        top: 50px;
+    }
+
+    .modal-content {
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+    }
+
+    .modal-header {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 5px 5px 0 0;
+    }
+
+    .modal-footer {
+        background-color: #f8f9fa;
+        padding: 10px 20px;
+        border-radius: 0 0 5px 5px;
+        text-align: right;
+    }
+
+    
+    .btn-primary {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+    .btn-secondary {
+        background-color: #ccc;
+        color: #000;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+
+        .btn-secondary:hover {
+            background-color: #b3b3b3;
+        }
 </style>

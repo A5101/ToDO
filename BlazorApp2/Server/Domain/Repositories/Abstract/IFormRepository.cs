@@ -8,5 +8,7 @@ namespace BlazorApp2.Server.Domain.Repositories.Abstract
         public List<Form> GetForms();
 
         public void Add(Form form);
+
+        public void Delete(Guid id);
     }
 }

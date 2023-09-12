@@ -107,6 +107,8 @@
 
     private bool isDraggingFromToolbox = false;
 
+    private bool clicked = false;
+
     private int startX = 0;
     private int startY = 0;
 
@@ -114,7 +116,7 @@
     {
         if (isDraggingFromToolbox)
         {
-            var template = new Template() { Type = currentDragType, Id = Guid.NewGuid(), Width = 100, Height = 50, IdForm = new Guid(id), MarginLeft = (int)e.OffsetX, MarginTop=(int)e.OffsetY };
+            var template = new Template() { Type = currentDragType, Id = Guid.NewGuid(), Width = 100, Height = 50, IdForm = new Guid(id), MarginLeft = (int)e.OffsetX, MarginTop = (int)e.OffsetY };
             await client.PostAsJsonAsync<Template>("api/Template", template);
             Refresh();
             isDraggingFromToolbox = false;
@@ -123,6 +125,7 @@
 
     private async Task ImageClick(MouseEventArgs e, Template template)
     {
+        clicked =true;
         if (e.OffsetX <= template.Width * 1.2 && e.OffsetX >= template.Width * 0.8 && e.OffsetY <= template.Height * 1.2 && e.OffsetY >= template.Height * 0.8)
         {
             startX = (int)e.ClientX;
@@ -132,7 +135,7 @@
         else if (e.OffsetX <= template.Width * 0.7 && e.OffsetX >= template.Width * 0.3 && e.OffsetY <= template.Height * 0.7 && e.OffsetY >= template.Height * 0.3)
         {
             startX = (int)e.ClientX;
-             startY = (int)e.ClientY;
+            startY = (int)e.ClientY;
             currentDraggbleTemplate = template;
         }
     }
@@ -149,23 +152,44 @@
         //Thread.Sleep(500);
     }
     private void ImageMove(MouseEventArgs e)
-    {
-        if (currentResizebleTemplate != null)
+    {if (clicked)
         {
-            currentResizebleTemplate.Width += (int)e.ClientX - startX;
-            currentResizebleTemplate.Height += (int)e.ClientY - startY;
-            startX = (int)e.ClientX;
-            startY = (int)e.ClientY;
+            if (currentResizebleTemplate != null)
+            {
+                currentResizebleTemplate.Width += (int)e.ClientX - startX;
+                currentResizebleTemplate.Height += (int)e.ClientY - startY;
+                startX = (int)e.ClientX;
+                startY = (int)e.ClientY;
+            }
+            if (currentDraggbleTemplate != null)
+            {
+                currentDraggbleTemplate.MarginLeft += (int)e.ClientX - startX;
+                currentDraggbleTemplate.MarginTop += (int)e.ClientY - startY;
+                startX = (int)e.ClientX;
+                startY = (int)e.ClientY;
+
+                // Выравнивание элементов
+                foreach (var item in droppedItems)
+                {
+                    if (item != currentDraggbleTemplate)
+                    {
+                        // Проверка по вертикали
+                        if (Math.Abs(item.MarginTop - currentDraggbleTemplate.MarginTop) < 10)
+                        {
+                            currentDraggbleTemplate.MarginTop = item.MarginTop;
+                        }
+
+                        // Проверка по горизонтали
+                        if (Math.Abs(item.MarginLeft - currentDraggbleTemplate.MarginLeft) < 10)
+                        {
+                            currentDraggbleTemplate.MarginLeft = item.MarginLeft;
+                        }
+                    }
+                }
+            }
         }
-        if (currentDraggbleTemplate != null)
-        {
-            currentDraggbleTemplate.MarginLeft += (int)e.ClientX - startX;
-            currentDraggbleTemplate.MarginTop += (int)e.ClientY - startY;
-            startX = (int)e.ClientX;
-            startY = (int)e.ClientY;
-        }
-        
     }
+
 
     private void ImageUp()
     {
@@ -179,19 +203,10 @@
             UpdateElement(currentDraggbleTemplate);
             currentDraggbleTemplate = null;
         }
+        clicked = false;
     }
 
-    // private IEnumerable<Template> GetCurrentFormItems()
-    // {
-    //     if (formTemplates.ContainsKey(selectedFormId))
-    //     {
-    //         return formTemplates[selectedFormId];
-    //     }
-    //     else
-    //     {
-    //         return Enumerable.Empty<Template>();
-    //     }
-    // }
+  
 
     private async Task UpdateElement(Template element)
     {

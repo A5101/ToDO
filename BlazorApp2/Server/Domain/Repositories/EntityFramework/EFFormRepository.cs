@@ -37,5 +37,11 @@ namespace BlazorApp2.Server.Domain.Repositories.EntityFramework
         {
             return context.Forms.ToList();
         }
+
+        public void Delete(Guid id)
+        {
+            context.Remove(context.Forms.FirstOrDefault(x => x.Id == id));
+            context.SaveChanges();
+        }
     }
 }
