@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,12 +11,12 @@ using System.Threading.Tasks;
 
 namespace BlazorApp2.Shared
 {
-   
 
-    public class Element : Template
+
+    public class Row
     {
+        public Element? Element { get; set; }
         public Guid Id { get; set; }
 
-        public string Text { get; set; }
     }
 }

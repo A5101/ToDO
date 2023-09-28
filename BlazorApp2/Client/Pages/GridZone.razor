@@ -1,0 +1,186 @@
+﻿@page "/gridzone"
+
+<h3>GridZone</h3>
+
+<div class="container">
+    <div class="row row-cols-1 col-md-6">
+        @foreach (var row in rows)
+        {
+            <div class="col border rounded fw-bold text-center mb-2" @onclick="() => ShowPanel(row)" style=@(selectedRow==row ? "border-color:blue !important" : "border-color:black !important")>
+                @if (row.Element != null)
+                {
+                    @if (row.Element.Type == "TextBox")
+                    {
+                        <input class="col-md-6 mt-1 mb-1 text-center" style="font-size:2ex !important" placeholder="Text" type="text">
+
+
+                    }
+                    else if (row.Element.Type == "RadioButton")
+                    {
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                            <label class="form-check-label" for="flexCheckDefault">
+                                @row.Element.Type
+                            </label>
+                        </div>
+
+                    }
+                    else if (row.Element.Type == "ComboBox")
+                    {
+                        <select class="mt-2 mb-2" style="font-size:2ex !important;">
+                            <option disabled selected>Выберите элемент из списка</option>
+                        </select>
+
+                    }
+                }
+                else
+                {
+                    <h5>Пусто</h5>
+                }
+                   
+            </div>
+
+        }
+        <div class="btn btn-primary text-center" @onclick="() => CreateRow()">Добавить строку</div>
+    </div>
+
+
+</div>
+<div class="toolbox border" style=@(selectedRow!=null ? "display:block" : "display:none" )>
+    <div class="element-panel">
+        <h3>
+            Элементы Управления
+        </h3>
+
+        <ul>
+            <li>
+                <div class="mt-2 mb-2" @onclick="@(() => AddElement("TextBox"))">
+                    <img width="100" height="50" src="images/input.jpg">
+                </div>
+            </li>
+
+            <li>
+                <div class="mt-2 mb-2" @onclick="@(() => AddElement("RadioButton"))">
+                    <img width="100" height="50" src="images/radioButton.jpg">
+                </div>
+            </li>
+
+            <li>
+                <div class="mt-2 mb-2" @onclick="@(() => AddElement("ComboBox"))">
+                    <img width="100" height="50" src="images/comboBox.jpg">
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="col-md-12 d-flex justify-content-center mt-3">
+        <button class="btn btn-info ps-3 pe-3" @onclick="() => ClearRow()">Очистить ячейку</button>
+    </div>
+     <div class="col-md-12 d-flex justify-content-center mt-3">
+        <button class="btn btn-danger ps-3 pe-3" @onclick="() => DeleteRow()">Удалить ячейку</button>
+    </div>
+</div>
+
+
+@code {
+    private List<Template> addedItems = new List<Template>();
+    private List<Row> rows = new List<Row>();
+
+    private Row selectedRow = null;
+
+    private void CreateRow()
+    {
+        rows.Add(new Row());
+    }
+    private void ClearRow()
+    {
+        selectedRow.Element = null;
+    }
+    private void DeleteRow()
+    {
+        rows.Remove(selectedRow);
+    }
+    private void ShowPanel(Row row)
+    {
+        if (selectedRow == null)
+        {
+            selectedRow = row;
+        }
+        else
+        {
+            if (selectedRow == row)
+            {
+                selectedRow = null;
+
+            }
+            else
+            {
+                selectedRow = row;
+            }
+        }
+
+    }
+
+    private void AddElement(string type)
+    {
+        selectedRow.Element = new Element() { Type = type };
+    }
+}
+<style>
+    .toolbox {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 25%;
+        height: 100vh;
+        background-color: #f8f9fa;
+        border-left: 1px solid #ccc;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        z-index: 1000;
+        transition: width 0.3s;
+    }
+
+    .element-panel {
+        padding: 1rem;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .properties-panel {
+        padding: 1rem;
+        flex-grow: 1;
+        overflow-y: auto;
+    }
+
+    h3, h5 {
+        margin: 0;
+        padding: 0;
+    }
+
+    h5 {
+        cursor: grab;
+    }
+
+    table {
+        width: 100%;
+        margin-bottom: 0 !important;
+    }
+
+    th, td {
+        padding: 0.5rem;
+        border-bottom: 1px solid #ccc;
+    }
+
+    input {
+        width: 100%;
+        padding: 0.25rem;
+    }
+
+    .bg-green {
+        background-color: green;
+    }
+
+    .bg-red {
+        background-color: red;
+    }
+</style>
