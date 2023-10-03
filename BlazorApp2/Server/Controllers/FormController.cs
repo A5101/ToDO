@@ -24,7 +24,7 @@ public class FormController : ControllerBase
     [HttpGet]
     public IActionResult GetForms()
     {
-        var forms = dataManager.FormRepository.GetFormsTemplates();
+        var forms = dataManager.FormRepository.GetForms();
         return Ok(forms);
     }
     [HttpDelete]

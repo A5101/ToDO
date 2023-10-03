@@ -1,0 +1,28 @@
+﻿@page "/filledForms"
+<h3>FilledForms</h3>
+
+@foreach (var form in Program.formList)
+{
+    <div class="border row row-cols-1 col-md-6 mb-2" style="border-color:blue !important">
+        @foreach (var field in form.GetType().GetProperties())
+        {
+            var fieldValue = field.GetValue(form);
+
+            @if (field.PropertyType.Name == "Guid")
+            {
+                <h3>@fieldValue</h3>
+            }
+            else
+            {
+
+                <div class="col border rounded fw-bold text-center mb-2">
+                    <h3>@fieldValue</h3>
+                </div>
+            }
+        }
+    </div>
+}
+
+@code {
+
+}

@@ -6,11 +6,11 @@ namespace BlazorApp2.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TemplateController : Controller
+    public class RowController : Controller
     {
         private readonly DataManager dataManager;
 
-        public TemplateController(DataManager dataManager)
+        public RowController(DataManager dataManager)
         {
             this.dataManager = dataManager;
         }
@@ -18,28 +18,28 @@ namespace BlazorApp2.Server.Controllers
         [HttpGet]
         public IActionResult Get(Guid id)
         {
-            var toDOs = dataManager.TemplateRepository.Get(id);
-            return Ok(toDOs);
+            var rows = dataManager.RowRepository.Get(id);
+            return Ok(rows);
         }
 
         [HttpPut]
-        public IActionResult Update(Template template)
+        public IActionResult Update(Row row)
         {
-            dataManager.TemplateRepository.Update(template);
+            dataManager.RowRepository.Update(row);
             return Ok();
         }
 
         [HttpPost]
-        public IActionResult Post(Template template)
+        public IActionResult Post(Row row)
         {
-            dataManager.TemplateRepository.Add(template);
+            dataManager.RowRepository.Add(row);
             return Ok();
         }
 
         [HttpDelete]
         public IActionResult Delete(Guid id)
         {
-            dataManager.TemplateRepository.Delete(id);
+            dataManager.RowRepository.Delete(id);
             return Ok();
         }
     }

@@ -3,14 +3,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BlazorApp2.Server.Domain.Repositories.Abstract
 {
-    public interface ITemplateRepository
+    public interface IRowRepository
     {
-        public void Add(Template element);
+        public void Add(Row element);
 
         public void Delete(Guid id);
 
-        public List<Template> Get(Guid id);
+        public List<Row> Get(Guid id);
 
-        public void Update(Template element);
+        public void Update(Row element);
     }
 }

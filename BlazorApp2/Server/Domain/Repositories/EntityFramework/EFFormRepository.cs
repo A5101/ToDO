@@ -18,21 +18,6 @@ namespace BlazorApp2.Server.Domain.Repositories.EntityFramework
             context.SaveChanges();
         }
 
-        public List<FormTemplateViewModel> GetFormsTemplates()
-        {
-            var list = new List<FormTemplateViewModel>();
-            var formList = context.Forms.ToList();
-            foreach (var form in formList)
-            {
-                list.Add(new FormTemplateViewModel()
-                {
-                    Templates = context.Templates.Where(x => x.IdForm == form.Id).ToList(),
-                    Form = form
-                });
-            }
-            return list;
-        }
-
         public List<Form> GetForms()
         {
             return context.Forms.ToList();

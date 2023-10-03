@@ -6,13 +6,13 @@ namespace BlazorApp2.Server.Domain
     {
         public IElementRepository ElementRepository { get; set; }
 
-        public ITemplateRepository TemplateRepository { get; set; }
+        public IRowRepository RowRepository { get; set; }
         public IFormRepository FormRepository { get; set; }
 
-        public DataManager(IElementRepository elementRepository, ITemplateRepository templateRepository, IFormRepository formRepository)
+        public DataManager(IElementRepository elementRepository, IRowRepository rowRepository, IFormRepository formRepository)
         {
             this.ElementRepository = elementRepository;
-            this.TemplateRepository = templateRepository;
+            this.RowRepository = rowRepository;
             this.FormRepository = formRepository;
         }
     }

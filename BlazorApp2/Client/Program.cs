@@ -6,6 +6,7 @@ namespace BlazorApp2.Client
 {
     public class Program
     {
+        public static List<object> formList = new List<object>();
         public static async Task Main(string[] args)
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);

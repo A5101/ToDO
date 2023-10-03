@@ -1,0 +1,100 @@
+﻿@page "/forma/{name}"
+@inject HttpClient client
+
+<h3>Form @name</h3>
+
+<div class="container">
+    <div class="row row-cols-1 col-md-6">
+        @foreach (var field in Model.GetType().GetProperties())
+        {
+            var fieldValue = field.GetValue(Model);
+
+            <div class="col border rounded fw-bold text-center mb-2">
+                @if (field.PropertyType.Name == "String")
+                {
+                    <input class="col-md-6 mt-1 mb-1 text-center" style="font-size:2ex !important" placeholder="Text" type="text" @oninput="e => UpdateFieldValue(e, field)" value="@fieldValue">
+                }
+            </div>
+        }
+    </div>
+    <button class="btn primary-btn" @onclick="() => Click()">Добавить</button>
+</div>
+
+@code 
+{
+    [Parameter]
+    public string name
+    {
+        get;
+        set;
+    } = "";
+
+    public object Model { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        var clas = "BlazorApp2.Client." + name;
+        var type = Type.GetType(clas, false, true);
+        Model = Activator.CreateInstance(type);
+    }
+
+    private void Click()
+    {
+        Model.GetType().GetProperty("Id").SetValue(Model, Guid.NewGuid());
+        Program.formList.Add(Model);
+    }
+
+    private void UpdateFieldValue(ChangeEventArgs e, PropertyInfo field)
+    {
+        var newValue = e.Value?.ToString();
+        field.SetValue(Model, Convert.ChangeType(newValue, field.PropertyType));
+    }
+}
+
+<style>
+
+
+    .element-panel {
+        padding: 1rem;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .properties-panel {
+        padding: 1rem;
+        flex-grow: 1;
+        overflow-y: auto;
+    }
+
+    h3, h5 {
+        margin: 0;
+        padding: 0;
+    }
+
+    h5 {
+        cursor: grab;
+    }
+
+    table {
+        width: 100%;
+        margin-bottom: 0 !important;
+    }
+
+    th, td {
+        padding: 0.5rem;
+        border-bottom: 1px solid #ccc;
+    }
+
+    input {
+        width: 100%;
+        padding: 0.25rem;
+    }
+
+    .bg-green {
+        background-color: green;
+    }
+
+    .bg-red {
+        background-color: red;
+    }
+</style>

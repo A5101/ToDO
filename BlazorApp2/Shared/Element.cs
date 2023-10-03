@@ -11,12 +11,11 @@ using System.Threading.Tasks;
 
 namespace BlazorApp2.Shared
 {
-   
-
-    public class Element : Template
+    public class Element
     {
+        public string? Type {  get; set; }
         public Guid Id { get; set; }
 
-        public string Text { get; set; }
+        public string? Text { get; set; }
     }
 }

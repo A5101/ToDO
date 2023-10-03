@@ -12,7 +12,7 @@ namespace BlazorApp2.Server.Domain
     {
         public DbSet<Element> Elements { get; set; }
 
-        public DbSet<Template> Templates { get; set; }
+        public DbSet<Row> Rows { get; set; }
         public DbSet<Form> Forms { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

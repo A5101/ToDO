@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace BlazorApp2.Shared
 {
-    public class FormTemplateViewModel
+    public class Form1
     {
-        public Form Form { get; set; }
-        public List<Template> Templates { get; set; }
+        public string? Text1 { get; set; }
+        public string? Text2 { get; set; }
     }
 }
