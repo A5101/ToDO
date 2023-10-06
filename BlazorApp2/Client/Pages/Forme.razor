@@ -1,4 +1,4 @@
-﻿@page "/form/{Entity}"
+﻿@page "/form/{dick}"
 @using System.Reflection
 @using System.ComponentModel
 @using System.Text.Json;
@@ -9,7 +9,7 @@
     {
         var name = property.Name;
         int i = 1;
-        <Control Entity="Entity" Property="property"/>
+        <Control Entity="Entity" Property="property" />
     }
     <div class="row">
         <div class="col-sm-12 d-flex justify-content-end">
@@ -22,6 +22,7 @@
 
 @code {
     [Parameter]
+    public string dick { get; set; }
     public object? Entity { get; set; }
 
     [Parameter]
@@ -31,8 +32,14 @@
 
     protected override void OnInitialized()
     {
+        var dictionary = JsonSerializer.Deserialize<List<object>>(dick);
+
+
+        var clas = "BlazorApp2.Client." + dictionary[1].ToString();
+        var type = Type.GetType(clas, false, true);
+
+        Entity = JsonSerializer.Deserialize(dictionary[0].ToString(), type);
         string str = Entity.ToString();
-        Entity = JsonSerializer.Deserialize(str, typeof(object));
         Properties = Entity.GetType().GetProperties().ToList();
     }
 

@@ -135,7 +135,12 @@ else
         var clas = "BlazorApp2.Client." + name;
         var type = Type.GetType(clas, false, true);
         var obj = Activator.CreateInstance(type);
-        NavigationManager.NavigateTo($"/form/{Uri.EscapeDataString(JsonSerializer.Serialize(obj))}");
+
+        List<object> dick = new List<object>();
+       dick.Add(obj); dick.Add(name);
+        
+        var items = JsonSerializer.Serialize(dick);
+        NavigationManager.NavigateTo($"/form/{Uri.EscapeDataString(items)}");
     }
 }
 
