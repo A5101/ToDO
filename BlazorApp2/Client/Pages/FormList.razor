@@ -1,7 +1,8 @@
 ﻿@page "/forms"
 @using BlazorApp2.Client.Pages
+@using System.Text.Json;
 @inject HttpClient client
-
+@inject Microsoft.AspNetCore.Components.NavigationManager NavigationManager
 <h3>FormList</h3>
 
 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
@@ -56,9 +57,10 @@ else
                     <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
                 </svg>
             </button>
-            <a class="btn btn-primary ms-1 mt-2 mb-2 d-inline-block" href=@($"forma/{form.Name}")>
+            @* <a class="btn btn-primary ms-1 mt-2 mb-2 d-inline-block" href=@($"forma/{form.Name}")>
                 Заполнить
-            </a>
+            </a> *@
+            <button @onclick="() => NavigateToNewPage(form.Name)">Перейти на новую страницу</button>
             @*  <hr class="line">
     <div class="" style="width:250px;height:250px">
     @foreach (var item in form.Templates)
@@ -127,6 +129,13 @@ else
     {
         list = await client.GetFromJsonAsync<List<Form>>("api/Form");
         StateHasChanged();
+    }
+    private void NavigateToNewPage(string name)
+    {
+        var clas = "BlazorApp2.Client." + name;
+        var type = Type.GetType(clas, false, true);
+        var obj = Activator.CreateInstance(type);
+        NavigationManager.NavigateTo($"/form/{Uri.EscapeDataString(JsonSerializer.Serialize(obj))}");
     }
 }
 

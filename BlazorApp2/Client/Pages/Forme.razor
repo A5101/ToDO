@@ -1,0 +1,43 @@
+﻿@page "/form/{Entity}"
+@using System.Reflection
+@using System.ComponentModel
+@using System.Text.Json;
+
+<EditForm Model="Entity" OnSubmit="OnSubmit">
+    <DataAnnotationsValidator />
+    @foreach (var property in Properties)
+    {
+        var name = property.Name;
+        int i = 1;
+        <Control Entity="Entity" Property="property"/>
+    }
+    <div class="row">
+        <div class="col-sm-12 d-flex justify-content-end">
+            <button class="btn btn-lg btn-primary" type="submit">
+                <i class="fa fa-save" /> Save
+            </button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public object? Entity { get; set; }
+
+    [Parameter]
+    public EventCallback OnSaved { get; set; }
+
+    private List<PropertyInfo> Properties { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        string str = Entity.ToString();
+        Entity = JsonSerializer.Deserialize(str, typeof(object));
+        Properties = Entity.GetType().GetProperties().ToList();
+    }
+
+    private async Task OnSubmit()
+    {
+        // notify parent component
+    }
+}
