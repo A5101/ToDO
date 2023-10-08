@@ -2,7 +2,8 @@
 @using System.Reflection
 @using System.ComponentModel
 @using System.Text.Json;
-
+@inject HttpClient client
+@inject NavigationManager navigationManager
 <EditForm Model="Entity" OnSubmit="OnSubmit">
     <DataAnnotationsValidator />
     @foreach (var property in Properties)
@@ -13,9 +14,7 @@
     }
     <div class="row">
         <div class="col-sm-12 d-flex justify-content-end">
-            <button class="btn btn-lg btn-primary" type="submit">
-                <i class="fa fa-save" /> Save
-            </button>
+            <button class="btn primary-btn" @onclick="() => Save()">Добавить</button>
         </div>
     </div>
 </EditForm>
@@ -24,7 +23,7 @@
     [Parameter]
     public string dick { get; set; }
     public object? Entity { get; set; }
-
+    public GenericForm GenericForm { get; set; }
     [Parameter]
     public EventCallback OnSaved { get; set; }
 
@@ -32,19 +31,27 @@
 
     protected override void OnInitialized()
     {
-        var dictionary = JsonSerializer.Deserialize<List<object>>(dick);
 
+        GenericForm = JsonSerializer.Deserialize<GenericForm>(dick);
 
-        var clas = "BlazorApp2.Client." + dictionary[1].ToString();
+        var clas = "BlazorApp2.Client." + GenericForm.ClassName;
         var type = Type.GetType(clas, false, true);
 
-        Entity = JsonSerializer.Deserialize(dictionary[0].ToString(), type);
-        string str = Entity.ToString();
+        Entity = GenericForm.GetDeserializeData(type);
         Properties = Entity.GetType().GetProperties().ToList();
+
+    }
+    private async Task Save()
+    {
+        GenericForm.SetSerializeData(Entity);
+        var response = await client.PostAsJsonAsync("api/GenericForm/Update", GenericForm);
+        navigationManager.NavigateTo("forms");
     }
 
     private async Task OnSubmit()
     {
         // notify parent component
     }
+
+
 }

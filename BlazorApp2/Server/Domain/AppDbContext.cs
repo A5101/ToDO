@@ -14,7 +14,7 @@ namespace BlazorApp2.Server.Domain
 
         public DbSet<Row> Rows { get; set; }
         public DbSet<Form> Forms { get; set; }
-
+        public DbSet<GenericForm> GenericForms { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseInMemoryDatabase(databaseName: "Db");

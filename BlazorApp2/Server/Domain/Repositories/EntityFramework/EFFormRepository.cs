@@ -14,7 +14,7 @@ namespace BlazorApp2.Server.Domain.Repositories.EntityFramework
 
         public void Add(Form form)
         {
-            context.Add(form);
+            context.Forms.Add(form);
             context.SaveChanges();
         }
 
@@ -25,7 +25,7 @@ namespace BlazorApp2.Server.Domain.Repositories.EntityFramework
 
         public void Delete(Guid id)
         {
-            context.Remove(context.Forms.FirstOrDefault(x => x.Id == id));
+            context.Forms.Remove(context.Forms.FirstOrDefault(x => x.Id == id));
             context.SaveChanges();
         }
     }

@@ -21,6 +21,7 @@ namespace BlazorApp2
             builder.Services.AddTransient<IElementRepository, EFElementRepository>();
             builder.Services.AddTransient<IRowRepository, EFRowRepository>();
             builder.Services.AddTransient<IFormRepository, EFFormRepository>();
+            builder.Services.AddTransient<IGenericFormRepository, EFGenericFormRepository>();
             builder.Services.AddTransient<DataManager>();
 
             builder.Services.AddDbContext<AppDbContext>();
