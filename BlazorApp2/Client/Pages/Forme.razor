@@ -8,13 +8,13 @@
     <DataAnnotationsValidator />
     @foreach (var property in Properties)
     {
-        var name = property.Name;
-        int i = 1;
-        <Control Entity="Entity" Property="property" />
+        <div class="mb-2">
+            <Control Entity="Entity" Property="property" />
+        </div>
     }
     <div class="row">
         <div class="col-sm-12 d-flex justify-content-end">
-            <button class="btn primary-btn" @onclick="() => Save()">Добавить</button>
+            <button class="btn btn-success" @onclick="() => Save()">Добавить</button>
         </div>
     </div>
 </EditForm>

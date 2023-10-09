@@ -7,7 +7,7 @@
     if (Property.PropertyType.Name == "String")
     {
         {
-            <InputText class="form-control"
+            <InputText class="form-control text-center"
                            rows="15"
                            Value="@((string)PropertyValue!)"
                            ValueExpression="ValueExpression<string>()"
@@ -23,7 +23,6 @@
         } *@
     }
     @* else if (PropertyType == typeof(int))
-    {
         <InputNumber class="form-control"
                      step="1"
                      Value="(int)PropertyValue!"
